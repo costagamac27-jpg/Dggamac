@@ -1,0 +1,2692 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Querência Operações Portuárias - Sistema de Gestão</title>
+    <!-- Inclusão do Chart.js para o Gráfico de Avarias -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #090d16;
+            --primary-light: #1e293b;
+            --accent: #2563eb;
+            --accent-gradient: linear-gradient(135deg, #1d4ed8, #3b82f6, #60a5fa);
+            --success: #059669;
+            --success-gradient: linear-gradient(135deg, #047857, #10b981);
+            --danger: #dc2626;
+            --danger-gradient: linear-gradient(135deg, #b91c1c, #ef4444);
+            --warning: #d97706;
+            --warning-gradient: linear-gradient(135deg, #b45309, #f59e0b);
+            --bg: #0b1329;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --radius: 18px;
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        body { background: radial-gradient(circle at top, #1e3a8a, #0b1329); color: var(--text-main); padding: 24px; line-height: 1.6; min-height: 100vh; }
+
+        /* TELA DE LOGIN CORPORATIVA DE ALTO PADRÃO */
+        #login-screen {
+            max-width: 440px;
+            margin: 50px auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 45px 40px;
+            border-radius: var(--radius);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        #login-screen::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 8px;
+            background: var(--accent-gradient);
+        }
+        #login-screen h2 { font-size: 1.6rem; font-weight: 900; color: #1e3a8a; margin-bottom: 6px; text-align: center; letter-spacing: -0.02em; }
+        #login-screen p { color: var(--text-muted); font-size: 0.88rem; text-align: center; margin-bottom: 28px; font-weight: 500; }
+
+        .app-container { max-width: 1280px; margin: 0 auto; display: none; }
+        
+        .brand-header { 
+            background: linear-gradient(135deg, #0f172a, #1e3a8a, #2563eb); 
+            color: white; 
+            padding: 40px 36px; 
+            border-radius: var(--radius); 
+            margin-bottom: 32px; 
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            border-left: 8px solid #60a5fa;
+            position: relative;
+            overflow: hidden;
+        }
+        .brand-header::after {
+            content: '⚓';
+            position: absolute;
+            right: -10px; bottom: -20px;
+            font-size: 8rem;
+            opacity: 0.08;
+        }
+        .brand-title-area h1 { font-size: 1.9rem; font-weight: 900; letter-spacing: -0.025em; display: flex; align-items: center; gap: 12px; }
+        .brand-title-area p { font-size: 0.85rem; opacity: 0.9; margin-top: 6px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #93c5fd; }
+        
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .brand-badge-status {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .lang-selector {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            outline: none;
+            backdrop-filter: blur(8px);
+        }
+        .lang-selector option { background: #1e3a8a; color: white; }
+
+        .nav-tabs { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 32px; 
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 10px; 
+            border-radius: var(--radius); 
+            border: 1px solid var(--border); 
+            box-shadow: var(--shadow);
+            flex-wrap: wrap; 
+        }
+        .tab-btn { 
+            flex: 1; 
+            padding: 14px 18px; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: 800; 
+            cursor: pointer; 
+            color: var(--text-muted); 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+            font-size: 0.9rem; 
+            min-width: 160px; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            background: transparent;
+        }
+        .tab-btn:hover { background-color: #eff6ff; color: #1d4ed8; }
+        .tab-btn.active { 
+            background: var(--accent-gradient); 
+            color: white; 
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4); 
+        }
+
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; background-color: var(--border); }
+        .status-dot.active { background-color: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.8); }
+        .status-dot.maintenance { background-color: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.8); }
+        .status-dot.revision { background-color: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.8); }
+
+        .view-section { display: none; background: white; padding: 45px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); }
+        .view-section.active { display: block; animation: fadeIn 0.35s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        .dashboard-welcome h2 { font-size: 1.9rem; font-weight: 900; color: #1e3a8a; }
+        .dashboard-welcome p { color: var(--text-muted); font-size: 1.05rem; margin-top: 4px; font-weight: 500; }
+        
+        .dashboard-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 24px; 
+            margin-bottom: 32px; 
+        }
+        .stat-card { 
+            background: #ffffff; 
+            padding: 24px; 
+            border-radius: var(--radius); 
+            border: 1px solid var(--border); 
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+        }
+        .stat-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.1);
+            border-color: #93c5fd;
+        }
+        .stat-card.border-accent { border-left: 6px solid #2563eb; }
+        .stat-card.border-danger { border-left: 6px solid #dc2626; }
+        .stat-card.border-warning { border-left: 6px solid #d97706; }
+        .stat-card.border-success { border-left: 6px solid #059669; }
+
+        .stat-info { display: flex; flex-direction: column; }
+        .stat-card h3 { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 900; letter-spacing: 0.08em; }
+        .stat-card p { font-size: 2.4rem; font-weight: 900; color: var(--primary); margin-top: 8px; line-height: 1; }
+        
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .stat-card.border-accent .stat-icon { background: rgba(37, 99, 235, 0.12); color: #2563eb; }
+        .stat-card.border-danger .stat-icon { background: rgba(220, 38, 38, 0.12); color: #dc2626; }
+        .stat-card.border-warning .stat-icon { background: rgba(217, 119, 6, 0.12); color: #d97706; }
+        .stat-card.border-success .stat-icon { background: rgba(5, 150, 105, 0.12); color: #059669; }
+
+        .dashboard-panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 32px;
+        }
+        @media(max-width: 900px) {
+            .dashboard-panels { grid-template-columns: 1fr; }
+        }
+
+        .chart-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+        .chart-card h3 { font-size: 1.15rem; color: #1e3a8a; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; font-weight: 800; }
+
+        .alert-box { 
+            background: #fffbeb; 
+            border: 1px solid #fde68a; 
+            color: #92400e; 
+            padding: 22px; 
+            border-radius: var(--radius); 
+            margin-bottom: 24px; 
+            display: flex; 
+            align-items: flex-start; 
+            gap: 18px; 
+            font-weight: 600; 
+            box-shadow: var(--shadow);
+        }
+        .alert-box-success { 
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5); 
+            border: 1px solid #6ee7b7; 
+            color: #065f46; 
+            padding: 22px; 
+            border-radius: var(--radius); 
+            margin-bottom: 24px; 
+            display: flex; 
+            align-items: flex-start; 
+            gap: 18px; 
+            font-weight: 700; 
+            box-shadow: var(--shadow);
+        }
+        .alert-icon { font-size: 2rem; line-height: 1; }
+
+        .quick-actions-panel {
+            background: linear-gradient(135deg, #f8fafc, #eff6ff);
+            padding: 24px;
+            border-radius: var(--radius);
+            border: 1px solid #bfdbfe;
+        }
+        .quick-actions-panel h3 {
+            font-size: 1.15rem;
+            color: #1e3a8a;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+        }
+        .quick-btn {
+            display: block;
+            width: 100%;
+            padding: 14px 18px;
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            color: var(--text-main);
+            font-weight: 800;
+            text-align: left;
+            margin-bottom: 12px;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .quick-btn:hover {
+            border-color: #2563eb;
+            color: #2563eb;
+            transform: translateX(6px);
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .control-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 800; margin-bottom: 8px; font-size: 0.92rem; color: #1e3a8a; }
+        input, select, textarea { width: 100%; padding: 13px 16px; border: 1px solid var(--border); border-radius: 12px; font-size: 1rem; background-color: #ffffff; transition: all 0.2s ease; font-weight: 500; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15); }
+
+        .data-table-wrapper { border: 1px solid var(--border); border-radius: var(--radius); overflow-x: auto; margin: 32px 0; background: white; box-shadow: var(--shadow); }
+        .data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem; }
+        .data-table th { background-color: #1e3a8a; color: white; padding: 18px 16px; font-weight: 900; border-bottom: 2px solid #172554; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.08em; }
+        .data-table td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: middle; font-weight: 500; }
+        .data-table tr.non-compliant { background-color: #fef2f2; }
+        .data-table tr.maintenance-row { background-color: #fff1f2; }
+        .data-table tr.revision-row { background-color: #fffbeb; }
+
+        .radio-group { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+        .radio-group label { display: flex; align-items: center; gap: 8px; font-weight: 700; margin-bottom: 0; cursor: pointer; color: var(--text-main); }
+        .radio-group input[type="radio"] { width: 20px; height: 20px; accent-color: #2563eb; }
+
+        .badge { display: inline-block; padding: 6px 14px; border-radius: 9999px; font-size: 0.75rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; }
+        .badge-critical { background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+        .badge-maintenance { background-color: #ffe4e6; color: #dc2626; border: 1px solid #fda4af; }
+        .badge-revision { background-color: #fef3c7; color: #d97706; border: 1px solid #fcd34d; }
+        .badge-operational { background-color: #d1fae5; color: #059669; border: 1px solid #6ee7b7; }
+        .badge-normal { background-color: #f1f5f9; color: var(--text-muted); border: 1px solid #cbd5e1; }
+
+        .fuel-progress-container {
+            width: 100%;
+            background-color: #e2e8f0;
+            border-radius: 9999px;
+            height: 14px;
+            overflow: hidden;
+            margin-top: 8px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
+        }
+        .fuel-progress-bar {
+            height: 100%;
+            background: var(--success-gradient);
+            border-radius: 9999px;
+            transition: width 0.5s ease;
+        }
+
+        .btn { width: 100%; padding: 14px 22px; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; transition: all 0.25s ease; font-size: 1rem; display: inline-flex; justify-content: center; align-items: center; gap: 10px; text-decoration: none; box-shadow: var(--shadow); letter-spacing: 0.02em; }
+        .btn-primary { background: var(--accent-gradient); color: white; }
+        .btn-primary:hover { opacity: 0.92; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35); }
+        .btn-success { background: var(--success-gradient); color: white; }
+        .btn-success:hover { opacity: 0.92; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(5, 150, 105, 0.35); }
+        .btn-danger { background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; box-shadow: none; }
+        .btn-warning { background: var(--warning-gradient); color: white; }
+        .btn-email { background: linear-gradient(135deg, #0284c7, #0369a1); color: white; }
+        .btn-email:hover { opacity: 0.92; transform: translateY(-2px); }
+        .btn-logout { background-color: #334155; color: white; width: auto; padding: 10px 20px; font-size: 0.88rem; box-shadow: none; }
+
+        .history-item { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; margin-bottom: 20px; box-shadow: var(--shadow); }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; }
+        .history-actions { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+        .history-actions .btn { width: auto; font-size: 0.9rem; padding: 10px 18px; box-shadow: none; }
+
+        #print-report-container { display: none; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #print-report-container, #print-report-container * { visibility: visible; }
+            #print-report-container { display: block !important; position: absolute; left: 0; top: 0; width: 100%; background: white; padding: 4mm 8mm; }
+            .no-print { display: none !important; }
+            @page { size: A4; margin: 0; }
+        }
+
+        .pdf-page { 
+            border: 2px solid var(--primary); 
+            padding: 14px 20px; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white; 
+            color: var(--text-main);
+            font-size: 8pt;
+        }
+        
+        .pdf-header { 
+            text-align: center; 
+            border-bottom: 2px double var(--primary); 
+            padding-bottom: 8px; 
+            margin-bottom: 10px; 
+        }
+        .pdf-header h2 { font-size: 1.3rem; font-weight: 900; color: #1e3a8a; }
+        .pdf-header p { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; font-weight: 700; text-transform: uppercase; }
+        
+        .pdf-grid-info { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 6px 14px; 
+            font-size: 0.8rem; 
+            margin-bottom: 12px; 
+            background-color: #f8fafc;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .pdf-grid-info div { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px dashed var(--border); }
+        .pdf-grid-info div:last-child, .pdf-grid-info div:nth-last-child(2) { border-bottom: none; }
+        .pdf-grid-info div span:first-child { font-weight: 800; color: #475569; }
+        .pdf-grid-info div span:last-child { font-weight: 800; color: #1e3a8a; text-align: right;}
+
+        .pdf-section-title {
+            font-size: 0.9rem; font-weight: 900; margin-bottom: 6px; color: #1e3a8a;
+            text-transform: uppercase; border-bottom: 2px solid #1e3a8a; padding-bottom: 3px;
+        }
+
+        .pdf-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; margin-bottom: 12px; }
+        .pdf-table th { background-color: #1e3a8a; color: white; border: 1px solid #1e3a8a; padding: 5px 8px; text-align: left; font-weight: 800; text-transform: uppercase; font-size: 0.7rem;}
+        .pdf-table td { border: 1px solid var(--border); padding: 5px 8px; }
+        .pdf-table tr:nth-child(even) { background-color: #f8fafc; }
+        
+        .pdf-obs-box { border: 1px solid var(--border); padding: 8px 12px; margin-bottom: 12px; border-radius: 10px; font-size: 0.75rem; min-height: 40px; background-color: #f9fafb; line-height: 1.3; }
+
+        .pdf-signature { margin-top: 20px; text-align: center; font-size: 0.8rem; page-break-inside: avoid; }
+        .pdf-signature-line { width: 280px; border-top: 2px solid #1e3a8a; margin: 0 auto 6px auto; }
+        .pdf-signature-text { font-weight: 800; color: #1e3a8a; }
+    </style>
+</head>
+<body>
+
+<!-- TELA DE LOGIN -->
+<div id="login-screen" class="no-print">
+    <div style="text-align: right; margin-bottom: 10px;">
+        <select id="loginLangSelect" class="lang-selector" style="color: var(--primary); background: #f1f5f9; border-color: var(--border);" onchange="changeLanguage(this.value)">
+            <option value="pt">🇧🇷 Português</option>
+            <option value="en">🇺🇸 English</option>
+        </select>
+    </div>
+    <div style="text-align: center; font-size: 3.2rem; margin-bottom: 12px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">⚓</div>
+    <h2 id="txt-login-title">Querência Operações Portuárias</h2>
+    <p id="txt-login-subtitle">Sistema Operacional de Gestão, Manutenção e Abastecimento</p>
+    <form onsubmit="handleLogin(event)" style="margin-top: 24px;">
+        <div class="control-group">
+            <label id="lbl-login-user">Usuário / Login</label>
+            <input type="text" id="loginUser" required placeholder="Digite seu usuário...">
+        </div>
+        <div class="control-group">
+            <label id="lbl-login-pass">Senha</label>
+            <input type="password" id="loginPass" required placeholder="Digite sua senha...">
+        </div>
+        <button type="submit" id="btn-login-submit" class="btn btn-primary" style="margin-top: 14px;">Acessar o Sistema</button>
+    </form>
+    <div id="txt-login-footer" style="margin-top: 24px; font-size: 0.82rem; color: var(--text-muted); text-align: center; border-top: 1px dashed var(--border); pt: 15px;">
+        <strong style="color: #1e3a8a;">Administrador:</strong> <code>gamacgael9292</code><br>
+        <span style="font-size: 0.78rem;">(Eletricistas e operadores acessam com logins criados no painel)</span>
+    </div>
+</div>
+
+<div class="app-container no-print" id="mainAppContainer">
+    <!-- CABEÇALHO EXECUTIVO -->
+    <header class="brand-header">
+        <div class="brand-title-area">
+            <h1>⚓ Querência Operações Portuárias</h1>
+            <p id="txt-header-sub">Sistema Corporativo de Controle Técnico e Operacional</p>
+        </div>
+        <div class="header-controls">
+            <select id="appLangSelect" class="lang-selector" onchange="changeLanguage(this.value)">
+                <option value="pt">🇧🇷 Português</option>
+                <option value="en">🇺🇸 English</option>
+            </select>
+            <div class="brand-badge-status" id="currentUserBadge">
+                <span class="status-dot active"></span> <span>Usuário: Admin</span>
+            </div>
+            <button class="btn btn-logout" id="btn-logout" onclick="logout()">Encerrar Sessão</button>
+        </div>
+    </header>
+
+    <nav class="nav-tabs" id="navTabsContainer">
+        <button class="tab-btn active" onclick="switchTab('dashboard', this)" data-i18n="nav-dash">📊 Painel Executivo</button>
+        <button class="tab-btn staff-only" onclick="switchTab('machine-check', this)" data-i18n="nav-mach-check">📝 Checklist Máquina</button>
+        <button class="tab-btn staff-only" onclick="switchTab('op-check', this)" data-i18n="nav-op-check">🚢 Checklist Operação</button>
+        <button class="tab-btn electric-only" onclick="switchTab('fuel-refuel', this)" data-i18n="nav-fuel">⛽ Abastecimento (Elétrica)</button>
+        <button class="tab-btn owner-only" onclick="switchTab('maintenance', this)"><span data-i18n="nav-maint">🔧 Oficina & Revisão</span> <span class="status-dot maintenance"></span></button>
+        <button class="tab-btn owner-only" onclick="switchTab('fleet', this)"><span data-i18n="nav-fleet">🚜 Frota de Máquinas</span> <span class="status-dot active"></span></button>
+        <button class="tab-btn owner-only" onclick="switchTab('users-admin', this)" data-i18n="nav-users">🔑 Gerir Logins</button>
+        <button class="tab-btn" onclick="switchTab('history', this)" data-i18n="nav-history">📋 Histórico Corporativo</button>
+    </nav>
+
+    <!-- PAINEL GERAL -->
+    <section id="dashboard" class="view-section active">
+        <div class="dashboard-header">
+            <div class="dashboard-welcome">
+                <h2 data-i18n="dash-title">Painel Executivo de Controle</h2>
+                <p data-i18n="dash-subtitle">Monitoramento em tempo real do cais, frotas, manutenções e combustível</p>
+            </div>
+        </div>
+
+        <div class="alert-box-success">
+            <div class="alert-icon">💎</div>
+            <div data-i18n="dash-banner"><strong>CERTIFICAÇÃO DE QUALIDADE QUERÊNCIA:</strong> Operação portuária sob rigorosos padrões de conformidade técnica, segurança no trabalho e eficiência máxima nos porões e berços.</div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="stat-card border-accent">
+                <div class="stat-info">
+                    <h3 data-i18n="stat-insp">Total de Inspeções</h3>
+                    <p id="stat-total">0</p>
+                </div>
+                <div class="stat-icon">📋</div>
+            </div>
+            <div class="stat-card border-success">
+                <div class="stat-info">
+                    <h3 data-i18n="stat-fuel">Abastecimentos</h3>
+                    <p id="stat-fuel-total" style="color: #059669;">0</p>
+                </div>
+                <div class="stat-icon">⛽</div>
+            </div>
+            <div class="stat-card border-danger">
+                <div class="stat-info">
+                    <h3 data-i18n="stat-maint">Em Manutenção</h3>
+                    <p id="stat-maint" style="color: #dc2626;">0</p>
+                </div>
+                <div class="stat-icon">🛠️</div>
+            </div>
+            <div class="stat-card border-warning">
+                <div class="stat-info">
+                    <h3 data-i18n="stat-rev">Em Revisão</h3>
+                    <p id="stat-rev" style="color: #d97706;">0</p>
+                </div>
+                <div class="stat-icon">⚙️</div>
+            </div>
+            <div class="stat-card border-success">
+                <div class="stat-info">
+                    <h3 data-i18n="stat-active">Operacionais</h3>
+                    <p id="stat-op" style="color: #059669;">0</p>
+                </div>
+                <div class="stat-icon">🟢</div>
+            </div>
+            <div class="stat-card border-accent">
+                <div class="stat-info">
+                    <h3 data-i18n="stat-fleet">Total de Máquinas</h3>
+                    <p id="stat-fleet">0</p>
+                </div>
+                <div class="stat-icon">🚜</div>
+            </div>
+        </div>
+
+        <!-- PAINEL COM O GRÁFICO DE AVARIAS E ACESSOS RÁPIDOS -->
+        <div class="dashboard-panels">
+               <div class="chart-card owner-only-action">
+                <h3 data-i18n="chart-title">📊 Análise Mensal de Avarias e Custos</h3>
+                <p data-i18n="chart-subtitle" style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 16px; font-weight: 500;">Monitoramento de ocorrências (vidros, mangueiras, hidráulica, etc.) para otimização de gastos.</p>
+                <div style="position: relative; height: 260px; width: 100%;">
+                    <canvas id="damagesChart"></canvas>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                <div class="alert-box" id="alert-zone" style="display: none; margin-bottom: 0;">
+                    <div class="alert-icon">⚠️</div>
+                    <div><strong data-i18n="alert-term">Atenção Requerida no Terminal:</strong> <span id="alert-text">Existem equipamentos bloqueados, em manutenção ou revisão.</span></div>
+                </div>
+
+                <div class="quick-actions-panel" style="flex: 1;">
+                    <h3 data-i18n="quick-title">⚡ Atalhos Executivos</h3>
+                    <button class="quick-btn electric-only-action" onclick="switchTab('fuel-refuel', document.querySelector('[onclick*=\'fuel-refuel\']'))" data-i18n="quick-fuel">⛽ Registrar Abastecimento de Máquina</button>
+                    <button class="quick-btn staff-only-action" onclick="switchTab('machine-check', document.querySelector('[onclick*=\'machine-check\']'))" data-i18n="quick-mach-check">📝 Realizar Inspeção de Máquina</button>
+                    <button class="quick-btn owner-only-action" onclick="switchTab('maintenance', document.querySelector('[onclick*=\'maintenance\']'))" data-i18n="quick-maint">🔧 Acessar Gestão de Oficina</button>
+                    <button class="quick-btn" onclick="switchTab('history', document.querySelector('[onclick*=\'history\']'))" data-i18n="quick-hist">📋 Consultar Relatórios e Histórico</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABA DE ABASTECIMENTO -->
+    <section id="fuel-refuel" class="view-section">
+        <h2 data-i18n="fuel-title">Painel de Abastecimento de Combustível</h2>
+        <p data-i18n="fuel-subtitle" style="color: var(--text-muted); margin-bottom: 24px;">Controle rigoroso de litros, horímetro e atestação de tanque 100% completo</p>
+
+        <form id="formElectricFleet" style="background: #f8fafc; padding: 26px; border-radius: var(--radius); border: 1px solid #bfdbfe; margin-bottom: 32px; box-shadow: var(--shadow);" onsubmit="addElectricFleetItem(event)">
+            <h3 data-i18n="elec-form-title">🚜 Cadastro Rápido de Máquinas (Elétrica)</h3>
+            <p data-i18n="elec-form-sub" style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 16px; font-weight: 500;">Novas máquinas cadastradas aqui ficam salvas instantaneamente para abastecimentos e checklists.</p>
+            <div class="form-row">
+                <div class="control-group">
+                    <label data-i18n="lbl-eq-type">Tipo de Equipamento</label>
+                    <select id="elecFleetType" required>
+                        <option value="Pá Carregadeira">Pá Carregadeira</option>
+                        <option value="Escavadeira Hidráulica">Escavadeira Hidráulica</option>
+                        <option value="Empilhadeira">Empilhadeira</option>
+                        <option value="Bobcat">Bobcat</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label data-i18n="lbl-tag">TAG / Identificação</label>
+                    <input type="text" id="elecFleetTag" required placeholder="Ex: PC W20G 99">
+                </div>
+            </div>
+            <button type="submit" id="btn-save-mach-base" class="btn btn-primary" style="width: auto;">Salvar Máquina na Base</button>
+        </form>
+
+        <form id="formFuelRefuel" style="background: white; padding: 26px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 32px; box-shadow: var(--shadow);" onsubmit="registerFuelRefuel(event)">
+            <h3 data-i18n="fuel-reg-title">Registro de Abastecimento</h3>
+            <div class="form-row" style="margin-top: 16px;">
+                <div class="control-group">
+                    <label data-i18n="lbl-eq-select">Equipamento (TAG / Modelo)</label>
+                    <select id="fuelMachineTag" required><option value="">Selecione o Equipamento</option></select>
+                </div>
+                <div class="control-group">
+                    <label data-i18n="lbl-litters">Quantidade de Litros (L)</label>
+                    <input type="number" step="0.1" id="fuelLitters" required placeholder="Ex: 150.5">
+                </div>
+                <div class="control-group">
+                    <label data-i18n="lbl-meter">Horímetro Atual / KM</label>
+                    <input type="text" id="fuelMeter" required placeholder="Ex: 4850 hrs">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="control-group">
+                    <label data-i18n="lbl-electrician">Eletricista / Responsável</label>
+                    <input type="text" id="fuelElectrician" required placeholder="Nome do profissional">
+                </div>
+                <div class="control-group"><label data-i18n="lbl-date">Data</label><input type="date" id="fuelDate" required></div>
+                <div class="control-group"><label data-i18n="lbl-time">Hora</label><input type="time" id="fuelTime" required></div>
+            </div>
+            <div class="control-group">
+                <label data-i18n="lbl-obs">Observações Adicionais (Opcional)</label>
+                <textarea rows="2" id="fuelObs" placeholder="Ex: Abastecimento completo, tanque chegado..."></textarea>
+            </div>
+            <button type="submit" id="btn-confirm-fuel" class="btn btn-success" style="width: auto;">Confirmar Abastecimento (Tanque 100%)</button>
+        </form>
+
+        <div class="data-table-wrapper">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 18px; background: #1e3a8a; color: white;">
+                <h3 id="fuel-hist-title" style="font-size: 1.05rem; font-weight: 800;">Histórico de Abastecimentos e Status dos Tanques</h3>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-primary" id="btn-print-fuel" style="width: auto; padding: 8px 16px; font-size: 0.85rem;" onclick="printFuelReportPDF()">🖨️ Gerar Relatório PDF</button>
+                    <a class="btn btn-email" id="emailFuelBtn" style="width: auto; padding: 8px 16px; font-size: 0.85rem;" href="#" target="_blank" onclick="prepareFuelEmail(event)">✉️ Enviar por E-mail</a>
+                </div>
+            </div>
+            <table class="data-table" style="margin-top: 0;">
+                <thead>
+                    <tr>
+                        <th data-i18n="th-eq">Equipamento</th>
+                        <th data-i18n="th-litters">Litros (L)</th>
+                        <th data-i18n="th-meter">Horímetro</th>
+                        <th data-i18n="th-electrician">Eletricista</th>
+                        <th data-i18n="th-datetime">Data / Hora</th>
+                        <th data-i18n="th-tank-status">Status do Tanque (100%)</th>
+                    </tr>
+                </thead>
+                <tbody id="fuelTableBody">
+                    <tr><td colspan="6" style="text-align: center; color: var(--text-muted);" data-i18n="msg-no-fuel">Nenhum abastecimento registrado até o momento.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- CHECKLIST MÁQUINA -->
+    <section id="machine-check" class="view-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 data-i18n="mach-chk-title">Inspeção de Máquina</h2>
+            <button class="btn btn-primary" id="btn-print-mach" style="width: auto; padding: 8px 16px; font-size: 0.85rem;" onclick="printActiveChecklistPDF()">🖨️ Gerar PDF da Inspeção</button>
+        </div>
+        <form id="formMachineCheck" style="margin-top: 10px;">
+            <div class="form-row">
+                <div class="control-group">
+                    <label data-i18n="lbl-operation">Operação</label>
+                    <select id="machOpType" onchange="toggleShipField()">
+                        <option value="Operação Normal" data-i18n="op-normal">Operação Normal</option>
+                        <option value="Entrada no Navio" data-i18n="op-in-ship">Entrada no Navio</option>
+                        <option value="Saída do Navio" data-i18n="op-out-ship">Saída do Navio</option>
+                    </select>
+                </div>
+                <div class="control-group" id="groupShipName" style="display: none;">
+                    <label style="color: var(--danger);" data-i18n="lbl-ship-hold">Navio / Porão *</label>
+                    <input type="text" id="machShipName" placeholder="Ex: MV Uglich - P4">
+                </div>
+            </div>
+            <div class="form-row">
+               <div class="control-group">
+                    <label data-i18n="lbl-model">Equipamento</label>
+                    <select id="machModel" onchange="loadChecklistItems()">
+                        <option value="" data-i18n="opt-select-model">Selecione o Modelo</option>
+                        <option value="Pá Carregadeira">Pá Carregadeira</option>
+                        <option value="Escavadeira Hidráulica">Escavadeira Hidráulica</option>
+                        <option value="Empilhadeira">Empilhadeira</option>
+                        <option value="Bobcat">Bobcat</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label data-i18n="lbl-tag-mach">TAG da Máquina</label>
+                    <select id="machTag" onchange="checkEquipmentStatus(this.value)">
+                        <option value="" data-i18n="opt-select-first">Selecione o Modelo Primeiro</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="machMaintWarning" class="alert-box" style="display: none; background-color: #fef2f2; border-color: #fca5a5; color: #991b1b; margin-bottom: 20px;">
+                <div class="alert-icon">🛑</div>
+                <div data-i18n="alert-mach-ind"><strong>ALERTA DE EQUIPAMENTO:</strong> Este equipamento encontra-se atualmente indisponível (Manutenção/Revisão) e não deve ser operado.</div>
+            </div>
+
+            <div class="form-row">
+                <div class="control-group">
+                    <label data-i18n="lbl-shift">Turno</label>
+                    <select id="machShift">
+                        <option value="Turno A">Turno A</option>
+                        <option value="Turno B">Turno B</option>
+                        <option value="Turno C">Turno C</option>
+                        <option value="Turno D">Turno D</option>
+                    </select>
+                </div>
+                <div class="control-group"><label data-i18n="lbl-operator">Operador</label><input type="text" id="machOperator" required placeholder="Nome completo"></div>
+                <div class="control-group"><label data-i18n="lbl-date">Data</label><input type="date" id="machDate" required></div>
+                <div class="control-group"><label data-i18n="lbl-time">Hora</label><input type="time" id="machTime" required></div>
+            </div>
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 35%;" data-i18n="th-item">Item Verificado</th>
+                            <th style="width: 40%;" data-i18n="th-status">Status</th>
+                            <th style="width: 25%;" data-i18n="th-obs">Observações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="machineItemsBody">
+                        <tr><td colspan="3" style="text-align: center; color: var(--text-muted);" data-i18n="msg-select-eq">Selecione um equipamento para carregar os itens.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="control-group">
+                <label data-i18n="lbl-gen-obs">Observações Gerais</label>
+                <textarea rows="4" id="machGeneralObs" placeholder="Detalhes adicionais sobre o estado geral..."></textarea>
+            </div>
+            
+            <button type="button" id="btn-save-mach-chk" class="btn btn-success" onclick="saveMachineCheck()">Salvar Checklist de Máquina</button>
+        </form>
+    </section>
+
+    <!-- CHECKLIST OPERAÇÃO -->
+    <section id="op-check" class="view-section">
+        <h2 data-i18n="op-chk-title">Checklist de Operação</h2>
+        <form id="formOpCheck" style="margin-top: 20px;">
+            <div class="form-row">
+                <div class="control-group"><label data-i18n="lbl-ship-name">Nome do Navio</label><input type="text" id="opShip" required></div>
+                <div class="control-group"><label data-i18n="lbl-berth">Berço</label><input type="text" id="opBerth" required></div>
+            </div>
+            <div class="form-row">
+                <div class="control-group"><label data-i18n="lbl-supervisor">Fiscal Responsável</label><input type="text" id="opSupervisor" required></div>
+                <div class="control-group"><label data-i18n="lbl-date">Data</label><input type="date" id="opDate" required></div>
+                <div class="control-group"><label data-i18n="lbl-time">Hora</label><input type="time" id="opTime" required></div>
+            </div>
+            <button type="button" id="btn-save-op-chk" class="btn btn-success" onclick="saveOpCheck()">Salvar Checklist de Operação</button>
+        </form>
+    </section>
+
+    <!-- MANUTENÇÃO, REVISÃO E LIBERAÇÃO -->
+    <section id="maintenance" class="view-section owner-restricted">
+        <h2 data-i18n="maint-title">Gestão de Oficina: Manutenção & Revisão</h2>
+        <p data-i18n="maint-subtitle" style="color: var(--text-muted); margin-bottom: 24px;">Controle de Equipamentos na Oficina (Pá Carregadeira, Escavadeira Hidráulica, Empilhadeira e Bobcat)</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+            <div style="background: #f8fafc; padding: 24px; border-radius: var(--radius); border: 1px solid var(--border);">
+                <h3 data-i18n="maint-entry-title">Registrar Entrada na Oficina</h3>
+                <form id="formMaintEntry" style="margin-top: 20px;" onsubmit="registerMaintenance(event)">
+                    <div class="control-group">
+                        <label data-i18n="lbl-eq-select">Equipamento (TAG / Modelo)</label>
+                        <select id="maintEntryTag" required><option value="">Selecione o Equipamento</option></select>
+                    </div>
+                    <div class="control-group">
+                        <label data-i18n="lbl-intervention">Tipo de Intervenção</label>
+                        <select id="maintEntryType" onchange="updateDefaultObs(this.value)">
+                            <option value="MAINTENANCE" data-i18n="opt-maint">Manutenção Corretiva / Preventiva (Parada)</option>
+                            <option value="REVISION" data-i18n="opt-rev">Revisão Periódica Programada</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label data-i18n="lbl-location">Localização Atual</label>
+                        <input type="text" id="maintEntryLocation" value="Oficina" readonly style="font-weight: bold; color: var(--primary);">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label data-i18n="lbl-damage-shortcut" style="color: var(--warning);">Atalhos de Avarias Estruturais / Custos (Opcional)</label>
+                        <select id="maintDamageShortcut" onchange="insertMaintDamageShortcut(this.value)" style="background: #fffbeb; border-color: #fcd34d;">
+                            <option value="" data-i18n="opt-select-damage">-- Adicionar avaria estrutural à observação --</option>
+                            <option value="Vidro Traseiro Trincado">Avaria: Vidro Traseiro Trincado</option>
+                            <option value="Vidro Frontal Trincado">Avaria: Vidro Frontal Trincado</option>
+                            <option value="Vidro Lateral Trincado">Avaria: Vidro Lateral Trincado</option>
+                            <option value="Retrovisor Danificado">Avaria: Retrovisor Danificado</option>
+                            <option value="Estouro de Mangueira Hidráulica">Avaria: Estouro de Mangueira Hidráulica</option>
+                            <option value="Vazamento de Fluido">Avaria: Vazamento de Fluido</option>
+                            <option value="Falha no Sistema de Iluminação">Avaria: Falha no Sistema de Iluminação</option>
+                            <option value="Pneu/Esteira com Desgaste Crítico">Avaria: Pneu/Esteira com Desgaste Crítico</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label data-i18n="lbl-reason">Motivo da Parada / Detalhes</label>
+                        <textarea rows="3" id="maintEntryReason" required placeholder="Ex: Falha no sistema hidráulico, revisão de 1000h..."></textarea>
+                    </div>
+                    <div class="control-group">
+                        <label data-i18n="lbl-default-msg">Mensagem Padrão do Sistema</label>
+                        <input type="text" id="maintEntryObs" readonly style="background-color: #f1f5f9;">
+                    </div>
+                    <div class="form-row">
+                        <div class="control-group"><label data-i18n="lbl-entry-date">Data de Entrada</label><input type="date" id="maintEntryDate" required></div>
+                        <div class="control-group"><label data-i18n="lbl-entry-time">Hora de Entrada</label><input type="time" id="maintEntryTime" required></div>
+                    </div>
+                    <button type="submit" id="btn-confirm-maint" class="btn btn-warning">Confirmar Entrada na Oficina</button>
+                </form>
+            </div>
+            <div style="background: #f8fafc; padding: 24px; border-radius: var(--radius); border: 1px solid var(--border);">
+                <h3 data-i18n="maint-release-title">Liberar Equipamento da Oficina</h3>
+                <form id="formMaintRelease" style="margin-top: 20px;" onsubmit="releaseMaintenance(event)">
+                    <div class="control-group">
+                        <label data-i18n="lbl-maint-mach">Equipamento na Oficina</label>
+                        <select id="maintReleaseTag" required onchange="populateReleaseDetails(this.value)"><option value="">Selecione a Máquina</option></select>
+                    </div>
+                    <div class="control-group">
+                        <label data-i18n="lbl-work-done">Serviço Executado</label>
+                        <textarea rows="3" id="maintReleaseWork" required placeholder="Descreva os reparos realizados, peças trocadas..."></textarea>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label data-i18n="lbl-restr-shortcut" style="color: var(--warning);">⚡ Atalhos de Restrições / Condições de Liberação</label>
+                        <select id="maintRestrShortcut" onchange="insertMaintRestrShortcut(this.value)" style="background: #fffbeb; border-color: #fcd34d;">
+                            <option value="" data-i18n="opt-select-restr">-- Selecionar restrição ou aviso pré-definido --</option>
+                            <option value="Máquina liberada sob ressalva: necessário verificar pendência com a Segurança do Trabalho (TST) referente ao extintor.">TST / Extintor: Verificar com Segurança do Trabalho.</option>
+                            <option value="Máquina liberada com vidro traseiro trincado.">Vidro Traseiro Trincado</option>
+                            <option value="Máquina liberada com vidro do parabrisa trincado.">Vidro do Parabrisa Trincado</option>
+                            <option value="Máquina liberada com vidro esquerdo trincado.">Vidro Esquerdo Trincado</option>
+                            <option value="Máquina liberada com vidro direito trincado.">Vidro Direito Trincado</option>
+                            <option value="Máquina liberada com restrição de local: EXCLUSIVAMENTE para trabalhar no cais, PROIBIDO entrar no porão.">Restrição de Local: Somente Cais (Proibido Porão)</option>
+                            <option value="Máquina liberada sob observação técnica: equipamento operando com perda de força parcial.">Desempenho: Máquina com perda de força</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label data-i18n="lbl-final-cond">Observação / Condição Final (Tudo o que digitar aqui fica salvo e sai no PDF)</label>
+                        <textarea rows="3" id="maintReleaseObs" placeholder="Insira ressalvas, avisos de segurança ou restrições..."></textarea>
+                    </div>
+                    <div class="control-group"><label data-i18n="lbl-tech">Técnico / Responsável pela Liberação</label><input type="text" id="maintReleaseTech" required placeholder="Nome do mecânico/supervisor"></div>
+                    <div class="form-row">
+                        <div class="control-group"><label data-i18n="lbl-release-date">Data de Liberação</label><input type="date" id="maintReleaseDate" required></div>
+                        <div class="control-group"><label data-i18n="lbl-release-time">Hora de Liberação</label><input type="time" id="maintReleaseTime" required></div>
+                    </div>
+                    <button type="submit" id="btn-confirm-release" class="btn btn-success">Gerar Relatório de Liberação e Retorno à Operação</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="data-table-wrapper" style="margin-top: 32px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #f1f5f9; border-bottom: 2px solid var(--border);">
+                <h3 data-i18n="maint-table-title">Equipamentos Atualmente na Oficina</h3>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-primary" id="btn-print-maint" style="width: auto; padding: 8px 16px; font-size: 0.85rem;" onclick="printMaintenanceReportPDF()">🖨️ Gerar PDF</button>
+                    <a class="btn btn-email" id="emailMaintBtn" style="width: auto; padding: 8px 16px; font-size: 0.85rem;" href="#" target="_blank" onclick="prepareMaintEmail(event)">✉️ Enviar por E-mail</a>
+                </div>
+            </div>
+            <table class="data-table" style="margin-top: 0;">
+                <thead><tr><th data-i18n="th-type">Tipo</th><th data-i18n="th-tag">TAG</th><th data-i18n="th-intervention">Intervenção</th><th data-i18n="th-location">Localização</th><th data-i18n="th-entry-date">Data Entrada</th><th data-i18n="th-status">Status</th></tr></thead>
+                <tbody id="maintenanceTableBody"><tr><td colspan="6" style="text-align: center; color: var(--text-muted);" data-i18n="msg-no-maint">Nenhuma máquina na oficina no momento.</td></tr></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- MÁQUINAS E RELATÓRIO OPERACIONAL -->
+    <section id="fleet" class="view-section owner-restricted">
+        <h2 data-i18n="fleet-title">Gestão de Máquinas & Relatório de Operação</h2>
+        <p data-i18n="fleet-subtitle" style="color: var(--text-muted); margin-bottom: 24px;">Cadastro de Equipamentos e Listagem em Tempo Real de Máquinas em Operação</p>
+        
+        <form onsubmit="addFleetItem(event);" style="margin-top: 20px; background: #f8fafc; padding: 24px; border-radius: var(--radius); border: 1px solid var(--border);">
+            <h3 data-i18n="fleet-add-title">Cadastrar Novo Equipamento</h3>
+            <div class="form-row" style="margin-top: 20px;">
+                <div class="control-group">
+                    <label data-i18n="lbl-eq-type">Tipo de Equipamento</label>
+                    <select id="fleetType" required>
+                        <option value="Pá Carregadeira">Pá Carregadeira</option>
+                        <option value="Escavadeira Hidráulica">Escavadeira Hidráulica</option>
+                        <option value="Empilhadeira">Empilhadeira</option>
+                        <option value="Bobcat">Bobcat</option>
+                    </select>
+                </div>
+                <div class="control-group"><label data-i18n="lbl-tag">TAG / Identificação</label><input type="text" id="fleetTag" required placeholder="Ex: PC W20G 36"></div>
+            </div>
+            <button type="submit" id="btn-add-fleet" class="btn btn-primary" style="width: auto;">Adicionar à Lista de Máquinas</button>
+        </form>
+
+        <div style="margin-top: 48px; background: #f8fafc; padding: 24px; border-radius: var(--radius); border: 1px solid var(--border);">
+            <h3 data-i18n="op-reg-title">Área de Registro de Máquinas Operacionais</h3>
+            <p data-i18n="op-reg-sub" style="color: var(--text-muted); margin-bottom: 20px;">Confirme e registre as máquinas aptas para o trabalho imediato com suas devidas ressalvas.</p>
+            
+            <div class="alert-box-success">
+                <div class="alert-icon">💎</div>
+                <div data-i18n="op-reg-banner"><strong>COMPROMISSO COM A EXCELÊNCIA OPERACIONAL:</strong> As máquinas listadas abaixo encontram-se plenamente certificadas e alinhadas aos mais altos padrões de segurança e qualidade da Querência Operações Portuárias, garantindo desempenho produtivo e integridade total no cais e porões.</div>
+            </div>
+
+            <form id="formOperationalEntry" style="margin-top: 20px;" onsubmit="registerOperationalMachine(event)">
+                <div class="form-row">
+                    <div class="control-group">
+                        <label data-i18n="lbl-op-mach-select">Máquina Disponível (TAG / Modelo)</label>
+                        <select id="operationalEntrySelect" required><option value="">Selecione uma máquina operacional</option></select>
+                    </div>
+                    <div class="control-group">
+                        <label data-i18n="lbl-op-loc">Local de Operação</label>
+                        <input type="text" id="operationalLocation" required placeholder="Ex: Pátio Principal, Porão 2, Cais...">
+                    </div>
+                    <div class="control-group">
+                        <label data-i18n="lbl-supervisor">Encarregado / Supervisor Responsável</label>
+                        <input type="text" id="operationalSupervisor" required placeholder="Nome do responsável">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label data-i18n="lbl-op-restr-shortcut" style="color: var(--warning);">⚡ Atalhos de Ressalvas / Restrições Operacionais</label>
+                    <select id="opRestrShortcut" onchange="insertOpRestrShortcut(this.value)" style="background: #fffbeb; border-color: #fcd34d;">
+                        <option value="" data-i18n="opt-select-restr">-- Selecionar ressalva ou aviso pré-definido --</option>
+                        <option value="Máquina liberada para operação, porém verificar pendência com a Segurança do Trabalho (TST) sobre o extintor.">TST / Extintor: Verificar com Segurança do Trabalho.</option>
+                        <option value="Máquina operando com vidro traseiro trincado.">Vidro Traseiro Trincado</option>
+                        <option value="Máquina operando com vidro do parabrisa trincado.">Vidro do Parabrisa Trincado</option>
+                        <option value="Máquina operando com vidro esquerdo trincado.">Vidro Esquerdo Trincado</option>
+                        <option value="Máquina operando com vidro direito trincado.">Vidro Direito Trincado</option>
+                        <option value="Máquina liberada EXCLUSIVAMENTE para o cais (Proibido entrar no porão).">Restrição de Local: Somente Cais (Proibido Porão)</option>
+                        <option value="Máquina operando sob observação técnica com perda de força parcial.">Desempenho: Máquina com perda de força</option>
+                    </select>
+                </div>
+                  <div class="control-group">
+                    <label data-i18n="lbl-obs-special">Observação / Condições Especiais (Tudo o que digitar aqui fica salvo e sai no PDF)</label>
+                    <textarea rows="3" id="operationalObs" placeholder="Insira restrições, avisos de segurança ou observações adicionais..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="control-group"><label data-i18n="lbl-reg-date">Data de Registro</label><input type="date" id="operationalDate" required></div>
+                    <div class="control-group"><label data-i18n="lbl-reg-time">Hora de Registro</label><input type="time" id="operationalTime" required></div>
+                </div>
+                <button type="submit" id="btn-reg-op-mach" class="btn btn-success" style="width: auto;">Registrar Máquina em Operação</button>
+            </form>
+        </div>
+
+        <div class="data-table-wrapper" style="margin-top: 32px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #f1f5f9; border-bottom: 2px solid var(--border);">
+                <h3 data-i18n="op-list-title">Listagem e Registro de Máquinas Operacionais</h3>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-success" id="btn-print-op" style="width: auto; padding: 8px 16px; font-size: 0.85rem;" onclick="printOperationalFleetPDF()">🖨️ Relatório em PDF</button>
+                    <a class="btn btn-email" id="emailOperationalBtn" style="width: auto; padding: 8px 16px; font-size: 0.85rem;" href="#" target="_blank" onclick="prepareOperationalEmail(event)">✉️ Enviar por E-mail</a>
+                </div>
+            </div>
+            <table class="data-table">
+                <thead><tr><th data-i18n="th-type">Tipo</th><th data-i18n="th-tag">TAG</th><th data-i18n="th-op-loc">Local de Operação</th><th data-i18n="th-supervisor">Supervisor</th><th data-i18n="th-obs-res">Observações / Ressalvas</th><th style="text-align: right;" data-i18n="th-action">Ação</th></tr></thead>
+                <tbody id="operationalFleetTableBody"><tr><td colspan="6" style="text-align: center; color: var(--text-muted);" data-i18n="msg-no-op">Nenhuma máquina registrada como operacional no momento.</td></tr></tbody>
+            </table>
+        </div>
+
+        <div class="data-table-wrapper" style="margin-top: 32px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #f1f5f9; border-bottom: 2px solid var(--border);">
+                <h3 data-i18n="fleet-list-title">Listagem Geral de Máquinas</h3>
+                <div>
+                    <span class="badge badge-operational" data-i18n="badge-op">🟢 OPERACIONAL</span>
+                    <span class="badge badge-maintenance" data-i18n="badge-maint">🔴 EM MANUTENÇÃO</span>
+                    <span class="badge badge-revision" data-i18n="badge-rev">🟡 EM REVISÃO</span>
+                </div>
+            </div>
+            <table class="data-table">
+                <thead><tr><th data-i18n="th-type">Tipo</th><th data-i18n="th-tag">TAG</th><th data-i18n="th-current-status">Status Atual</th><th data-i18n="th-current-loc">Localização Atual</th><th style="text-align: right;" data-i18n="th-action">Ação</th></tr></thead>
+                <tbody id="fleetTableBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- GESTÃO DE LOGINS -->
+    <section id="users-admin" class="view-section owner-restricted">
+        <h2 data-i18n="users-title">Gestão de Acessos & Logins da Equipe</h2>
+        <p data-i18n="users-subtitle" style="color: var(--text-muted); margin-bottom: 24px;">Cadastre novos logins para eletricistas, operadores e funcionários acessarem o aplicativo.</p>
+
+        <form onsubmit="createNewUser(event);" style="background: #f8fafc; padding: 24px; border-radius: var(--radius); border: 1px solid var(--border); max-width: 600px; margin-bottom: 32px;">
+            <h3 data-i18n="users-form-title">Criar Novo Login para Funcionário / Eletricista</h3>
+            <div class="control-group" style="margin-top: 16px;">
+                <label data-i18n="lbl-emp-name">Nome do Funcionário / Descrição</label>
+                <input type="text" id="newUserName" required placeholder="Ex: Eletricista Carlos Silva">
+            </div>
+            <div class="control-group">
+                <label data-i18n="lbl-profile">Perfil de Acesso</label>
+                <select id="newUserRole" required>
+                    <option value="electrician" data-i18n="role-elec">Eletricista / Abastecimento</option>
+                    <option value="staff" data-i18n="role-staff">Operador / Equipe Geral</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label data-i18n="lbl-login-name">Usuário de Acesso (Login)</label>
+                <input type="text" id="newUserLogin" required placeholder="Ex: eletricista.carlos">
+            </div>
+            <div class="control-group">
+                <label data-i18n="lbl-pass">Senha Provisória</label>
+                <input type="text" id="newUserPass" required placeholder="Ex: querencia123">
+            </div>
+            <button type="submit" id="btn-create-user" class="btn btn-primary">Cadastrar e Liberar Acesso</button>
+        </form>
+
+        <div class="data-table-wrapper">
+            <h3 data-i18n="users-table-title" style="padding: 16px; background: #f8fafc; border-bottom: 2px solid var(--border);">Usuários Cadastrados no Sistema</h3>
+            <table class="data-table">
+                <thead><tr><th data-i18n="th-name">Nome / Descrição</th><th data-i18n="th-user">Usuário (Login)</th><th data-i18n="th-profile">Perfil</th><th style="text-align: right;" data-i18n="th-action">Ação</th></tr></thead>
+                <tbody id="usersTableBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- HISTÓRICO -->
+    <section id="history" class="view-section">
+        <h2 data-i18n="hist-title">Histórico e Relatórios</h2>
+        <div style="margin: 20px 0;">
+            <input type="text" id="histSearch" placeholder="Filtrar por navio, máquina, operador, eletricista ou tipo..." data-i18n-ph="hist-search-ph" oninput="renderHistory()">
+        </div>
+        <div id="historyList"></div>
+    </section>
+</div>
+
+<!-- CONTAINER DE IMPRESSÃO DO PDF -->
+<div id="print-report-container"></div>
+
+<script>
+const TRANSLATIONS = {
+    pt: {
+        "login-title": "Querência Operações Portuárias",
+        "login-subtitle": "Sistema Operacional de Gestão, Manutenção e Abastecimento",
+        "lbl-login-user": "Usuário / Login",
+        "lbl-login-pass": "Senha",
+        "btn-login-submit": "Acessar o Sistema",
+        "txt-login-footer": '<strong style="color: #1e3a8a;">Administrador:</strong> <code>gamacgael9292</code><br><span style="font-size: 0.78rem;">(Eletricistas e operadores acessam com logins criados no painel)</span>',
+        "txt-header-sub": "Sistema Corporativo de Controle Técnico e Operacional",
+        "btn-logout": "Encerrar Sessão",
+        "nav-dash": "📊 Painel Executivo",
+        "nav-mach-check": "📝 Checklist Máquina",
+        "nav-op-check": "🚢 Checklist Operação",
+        "nav-fuel": "⛽ Abastecimento (Elétrica)",
+        "nav-maint": "🔧 Oficina & Revisão",
+        "nav-fleet": "🚜 Frota de Máquinas",
+        "nav-users": "🔑 Gerir Logins",
+        "nav-history": "📋 Histórico Corporativo",
+        "dash-title": "Painel Executivo de Controle",
+        "dash-subtitle": "Monitoramento em tempo real do cais, frotas, manutenções e combustível",
+        "dash-banner": "<strong>CERTIFICAÇÃO DE QUALIDADE QUERÊNCIA:</strong> Operação portuária sob rigorosos padrões de conformidade técnica, segurança no trabalho e eficiência máxima nos porões e berços.",
+        "stat-insp": "Total de Inspeções",
+        "stat-fuel": "Abastecimentos",
+        "stat-maint": "Em Manutenção",
+        "stat-rev": "Em Revisão",
+        "stat-active": "Operacionais",
+        "stat-fleet": "Total de Máquinas",
+        "chart-title": "📊 Análise Mensal de Avarias e Custos",
+        "chart-subtitle": "Monitoramento de ocorrências (vidros, mangueiras, hidráulica, etc.) para otimização de gastos.",
+        "alert-term": "Atenção Requerida no Terminal:",
+        "quick-title": "⚡ Atalhos Executivos",
+        "quick-fuel": "⛽ Registrar Abastecimento de Máquina",
+        "quick-mach-check": "📝 Realizar Inspeção de Máquina",
+        "quick-maint": "🔧 Acessar Gestão de Oficina",
+        "quick-hist": "📋 Consultar Relatórios e Histórico",
+        "fuel-title": "Painel de Abastecimento de Combustível",
+        "fuel-subtitle": "Controle rigoroso de litros, horímetro e atestação de tanque 100% completo",
+        "elec-form-title": "🚜 Cadastro Rápido de Máquinas (Elétrica)",
+        "elec-form-sub": "Novas máquinas cadastradas aqui ficam salvas instantaneamente para abastecimentos e checklists.",
+        "lbl-eq-type": "Tipo de Equipamento",
+        "lbl-tag": "TAG / Identificação",
+        "btn-save-mach-base": "Salvar Máquina na Base",
+        "fuel-reg-title": "Registro de Abastecimento",
+        "lbl-eq-select": "Equipamento (TAG / Modelo)",
+        "lbl-litters": "Quantidade de Litros (L)",
+        "lbl-meter": "Horímetro Atual / KM",
+        "lbl-electrician": "Eletricista / Responsável",
+        "lbl-date": "Data",
+        "lbl-time": "Hora",
+        "lbl-obs": "Observações Adicionais (Opcional)",
+        "btn-confirm-fuel": "Confirmar Abastecimento (Tanque 100%)",
+        "fuel-hist-title": "Histórico de Abastecimentos e Status dos Tanques",
+        "btn-print-fuel": "🖨️ Gerar Relatório PDF",
+        "th-eq": "Equipamento",
+        "th-litters": "Litros (L)",
+        "th-meter": "Horímetro",
+        "th-electrician": "Eletricista",
+        "th-datetime": "Data / Hora",
+        "th-tank-status": "Status do Tanque (100%)",
+        "msg-no-fuel": "Nenhum abastecimento registrado até o momento.",
+        "mach-chk-title": "Inspeção de Máquina",
+        "btn-print-mach": "🖨️ Gerar PDF da Inspeção",
+        "lbl-operation": "Operação",
+        "op-normal": "Operação Normal",
+        "op-in-ship": "Entrada no Navio",
+        "op-out-ship": "Saída do Navio",
+        "lbl-ship-hold": "Navio / Porão *",
+        "lbl-model": "Equipamento",
+        "opt-select-model": "Selecione o Modelo",
+        "lbl-tag-mach": "TAG da Máquina",
+        "opt-select-first": "Selecione o Modelo Primeiro",
+        "alert-mach-ind": "<strong>ALERTA DE EQUIPAMENTO:</strong> Este equipamento encontra-se atualmente indisponível (Manutenção/Revisão) e não deve ser operado.",
+        "lbl-shift": "Turno",
+        "lbl-operator": "Operador",
+        "th-item": "Item Verificado",
+        "th-status": "Status",
+        "th-obs": "Observações",
+        "msg-select-eq": "Selecione um equipamento para carregar os itens.",
+        "lbl-gen-obs": "Observações Gerais",
+        "btn-save-mach-chk": "Salvar Checklist de Máquina",
+        "op-chk-title": "Checklist de Operação",
+        "lbl-ship-name": "Nome do Navio",
+        "lbl-berth": "Berço",
+        "lbl-supervisor": "Fiscal Responsável",
+        "btn-save-op-chk": "Salvar Checklist de Operação",
+        "maint-title": "Gestão de Oficina: Manutenção & Revisão",
+        "maint-subtitle": "Controle de Equipamentos na Oficina (Pá Carregadeira, Escavadeira Hidráulica, Empilhadeira e Bobcat)",
+        "maint-entry-title": "Registrar Entrada na Oficina",
+        "lbl-intervention": "Tipo de Intervenção",
+        "opt-maint": "Manutenção Corretiva / Preventiva (Parada)",
+        "opt-rev": "Revisão Periódica Programada",
+        "lbl-location": "Localização Atual",
+        "lbl-damage-shortcut": "Atalhos de Avarias Estruturais / Custos (Opcional)",
+        "opt-select-damage": "-- Adicionar avaria estrutural à observação --",
+        "lbl-reason": "Motivo da Parada / Detalhes",
+        "lbl-default-msg": "Mensagem Padrão do Sistema",
+        "lbl-entry-date": "Data de Entrada",
+        "lbl-entry-time": "Hora de Entrada",
+        "btn-confirm-maint": "Confirmar Entrada na Oficina",
+        "maint-release-title": "Liberar Equipamento da Oficina",
+        "lbl-maint-mach": "Equipamento na Oficina",
+        "lbl-work-done": "Serviço Executado",
+        "lbl-restr-shortcut": "⚡ Atalhos de Restrições / Condições de Liberação",
+        "opt-select-restr": "-- Selecionar restrição ou aviso pré-definido --",
+        "lbl-final-cond": "Observação / Condição Final (Tudo o que digitar aqui fica salvo e sai no PDF)",
+        "lbl-tech": "Técnico / Responsável pela Liberação",
+        "lbl-release-date": "Data de Liberação",
+        "lbl-release-time": "Hora de Liberação",
+        "btn-confirm-release": "Gerar Relatório de Liberação e Retorno à Operação",
+        "maint-table-title": "Equipamentos Atualmente na Oficina",
+        "th-type": "Tipo",
+        "th-tag": "TAG",
+        "th-intervention": "Intervenção",
+        "th-location": "Localização",
+        "th-entry-date": "Data Entrada",
+        "msg-no-maint": "Nenhuma máquina na oficina no momento.",
+        "fleet-title": "Gestão de Máquinas & Relatório de Operação",
+        "fleet-subtitle": "Cadastro de Equipamentos e Listagem em Tempo Real de Máquinas em Operação",
+        "fleet-add-title": "Cadastrar Novo Equipamento",
+        "btn-add-fleet": "Adicionar à Lista de Máquinas",
+        "op-reg-title": "Área de Registro de Máquinas Operacionais",
+        "op-reg-sub": "Confirme e registre as máquinas aptas para o trabalho imediato com suas devidas ressalvas.",
+        "op-reg-banner": "<strong>COMPROMISSO COM A EXCELÊNCIA OPERACIONAL:</strong> As máquinas listadas abaixo encontram-se plenamente certificadas e alinhadas aos mais altos padrões de segurança e qualidade da Querência Operações Portuárias, garantindo desempenho produtivo e integridade total no cais e porões.",
+        "lbl-op-mach-select": "Máquina Disponível (TAG / Modelo)",
+        "lbl-op-loc": "Local de Operação",
+        "lbl-op-restr-shortcut": "⚡ Atalhos de Ressalvas / Restrições Operacionais",
+        "lbl-obs-special": "Observação / Condições Especiais (Tudo o que digitar aqui fica salvo e sai no PDF)",
+        "lbl-reg-date": "Data de Registro",
+        "lbl-reg-time": "Hora de Registro",
+        "btn-reg-op-mach": "Registrar Máquina em Operação",
+        "op-list-title": "Listagem e Registro de Máquinas Operacionais",
+        "th-op-loc": "Local de Operação",
+        "th-supervisor": "Supervisor",
+        "th-obs-res": "Observações / Ressalvas",
+        "th-action": "Ação",
+        "msg-no-op": "Nenhuma máquina registrada como operacional no momento.",
+        "fleet-list-title": "Listagem Geral de Máquinas",
+        "badge-op": "🟢 OPERACIONAL",
+        "badge-maint": "🔴 EM MANUTENÇÃO",
+        "badge-rev": "🟡 EM REVISÃO",
+        "th-current-status": "Status Atual",
+        "th-current-loc": "Localização Atual",
+        "users-title": "Gestão de Acessos & Logins da Equipe",
+        "users-subtitle": "Cadastre novos logins para eletricistas, operadores e funcionários acessarem o aplicativo.",
+        "users-form-title": "Criar Novo Login para Funcionário / Eletricista",
+        "lbl-emp-name": "Nome do Funcionário / Descrição",
+        "lbl-profile": "Perfil de Acesso",
+        "role-elec": "Eletricista / Abastecimento",
+        "role-staff": "Operador / Equipe Geral",
+        "lbl-login-name": "Usuário de Acesso (Login)",
+        "lbl-pass": "Senha Provisória",
+        "btn-create-user": "Cadastrar e Liberar Acesso",
+        "users-table-title": "Usuários Cadastrados no Sistema",
+        "th-name": "Nome / Descrição",
+        "th-user": "Usuário (Login)",
+        "th-profile": "Perfil",
+        "hist-title": "Histórico e Relatórios",
+        "hist-search-ph": "Filtrar por navio, máquina, operador, eletricista ou tipo..."
+    },
+    en: {
+        "login-title": "Querência Port Operations",
+        "login-subtitle": "Operational Management, Maintenance & Fuel System",
+        "lbl-login-user": "Username / Login",
+        "lbl-login-pass": "Password",
+        "btn-login-submit": "Access System",
+        "txt-login-footer": '<strong style="color: #1e3a8a;">Administrator:</strong> <code>gamacgael9292</code><br><span style="font-size: 0.78rem;">(Electricians and operators log in with credentials created in the panel)</span>',
+        "txt-header-sub": "Corporate Technical & Operational Control System",
+        "btn-logout": "Sign Out",
+        "nav-dash": "📊 Executive Dashboard",
+        "nav-mach-check": "📝 Machine Checklist",
+        "nav-op-check": "🚢 Operation Checklist",
+        "nav-fuel": "⛽ Fueling (Electrician)",
+        "nav-maint": "🔧 Workshop & Revision",
+        "nav-fleet": "🚜 Fleet & Machines",
+        "nav-users": "🔑 Manage Logins",
+        "nav-history": "📋 Corporate History",
+        "dash-title": "Executive Control Dashboard",
+        "dash-subtitle": "Real-time monitoring of docks, fleets, maintenance and fuel",
+        "dash-banner": "<strong>QUERÊNCIA QUALITY CERTIFICATION:</strong> Port operations under rigorous technical compliance standards, workplace safety, and maximum efficiency in holds and berths.",
+        "stat-insp": "Total Inspections",
+        "stat-fuel": "Fuel Refuels",
+        "stat-maint": "In Maintenance",
+        "stat-rev": "In Revision",
+        "stat-active": "Operational",
+        "stat-fleet": "Total Machines",
+        "chart-title": "📊 Monthly Damages & Costs Analysis",
+        "chart-subtitle": "Monitoring occurrences (windows, hoses, hydraulics, etc.) for cost optimization.",
+        "alert-term": "Attention Required at Terminal:",
+        "quick-title": "⚡ Executive Shortcuts",
+        "quick-fuel": "⛽ Register Machine Fueling",
+        "quick-mach-check": "📝 Perform Machine Inspection",
+        "quick-maint": "🔧 Access Workshop Management",
+        "quick-hist": "📋 View Reports & History",
+        "fuel-title": "Fuel Refueling Panel",
+        "fuel-subtitle": "Rigorous control of liters, hourmeter, and 100% full tank certification",
+        "elec-form-title": "🚜 Quick Machine Registration (Electrician)",
+        "elec-form-sub": "New machines registered here are saved instantly for fueling and checklists.",
+        "lbl-eq-type": "Equipment Type",
+        "lbl-tag": "TAG / Identification",
+        "btn-save-mach-base": "Save Machine to Base",
+        "fuel-reg-title": "Fuel Refuel Registration",
+        "lbl-eq-select": "Equipment (TAG / Model)",
+        "lbl-litters": "Liters Amount (L)",
+        "lbl-meter": "Current Hourmeter / KM",
+        "lbl-electrician": "Electrician / Responsible",
+        "lbl-date": "Date",
+        "lbl-time": "Time",
+           "lbl-obs": "Additional Observations (Optional)",
+        "btn-confirm-fuel": "Confirm Refueling (100% Tank)",
+        "fuel-hist-title": "Refueling History & Tank Status",
+        "btn-print-fuel": "🖨️ Generate PDF Report",
+        "th-eq": "Equipment",
+        "th-litters": "Liters (L)",
+        "th-meter": "Hourmeter",
+        "th-electrician": "Electrician",
+        "th-datetime": "Date / Time",
+        "th-tank-status": "Tank Status (100%)",
+        "msg-no-fuel": "No refuelings registered so far.",
+        "mach-chk-title": "Machine Inspection",
+        "btn-print-mach": "🖨️ Generate Inspection PDF",
+        "lbl-operation": "Operation",
+        "op-normal": "Normal Operation",
+        "op-in-ship": "Vessel Entry",
+        "op-out-ship": "Vessel Exit",
+        "lbl-ship-hold": "Vessel / Hold *",
+        "lbl-model": "Equipment",
+        "opt-select-model": "Select Model",
+        "lbl-tag-mach": "Machine TAG",
+        "opt-select-first": "Select Model First",
+        "alert-mach-ind": "<strong>EQUIPMENT ALERT:</strong> This equipment is currently unavailable (Maintenance/Revision) and must not be operated.",
+        "lbl-shift": "Shift",
+        "lbl-operator": "Operator",
+        "th-item": "Verified Item",
+        "th-status": "Status",
+        "th-obs": "Observations",
+        "msg-select-eq": "Select an equipment to load items.",
+        "lbl-gen-obs": "General Observations",
+        "btn-save-mach-chk": "Save Machine Checklist",
+        "op-chk-title": "Operation Checklist",
+        "lbl-ship-name": "Vessel Name",
+        "lbl-berth": "Berth",
+        "lbl-supervisor": "Responsible Inspector",
+        "btn-save-op-chk": "Save Operation Checklist",
+        "maint-title": "Workshop Management: Maintenance & Revision",
+        "maint-subtitle": "Equipment Control in Workshop (Wheel Loader, Hydraulic Excavator, Forklift, Bobcat)",
+        "maint-entry-title": "Register Workshop Entry",
+        "lbl-intervention": "Intervention Type",
+        "opt-maint": "Corrective / Preventive Maintenance (Stopped)",
+        "opt-rev": "Scheduled Periodic Revision",
+        "lbl-location": "Current Location",
+        "lbl-damage-shortcut": "Structural Damages / Cost Shortcuts (Optional)",
+        "opt-select-damage": "-- Add structural damage to observation --",
+        "lbl-reason": "Reason for Stop / Details",
+        "lbl-default-msg": "Default System Message",
+        "lbl-entry-date": "Entry Date",
+        "lbl-entry-time": "Entry Time",
+        "btn-confirm-maint": "Confirm Workshop Entry",
+        "maint-release-title": "Release Equipment from Workshop",
+        "lbl-maint-mach": "Equipment in Workshop",
+        "lbl-work-done": "Work Executed",
+        "lbl-restr-shortcut": "⚡ Restrictions / Release Conditions Shortcuts",
+        "opt-select-restr": "-- Select predefined restriction or warning --",
+        "lbl-final-cond": "Observation / Final Condition (Everything typed here is saved and appears in PDF)",
+        "lbl-tech": "Technician / Release Responsible",
+        "lbl-release-date": "Release Date",
+        "lbl-release-time": "Release Time",
+        "btn-confirm-release": "Generate Release Report & Return to Operation",
+        "maint-table-title": "Equipment Currently in Workshop",
+        "th-type": "Type",
+        "th-tag": "TAG",
+        "th-intervention": "Intervention",
+        "th-location": "Location",
+        "th-entry-date": "Entry Date",
+        "msg-no-maint": "No machines in workshop at the moment.",
+        "fleet-title": "Fleet Management & Operation Report",
+        "fleet-subtitle": "Equipment Registration and Real-Time Operational Listing",
+        "fleet-add-title": "Register New Equipment",
+        "btn-add-fleet": "Add to Machine List",
+        "op-reg-title": "Operational Machines Registration Area",
+        "op-reg-sub": "Confirm and register machines fit for immediate work with their respective caveats.",
+        "op-reg-banner": "<strong>COMMITMENT TO OPERATIONAL EXCELLENCE:</strong> The machines listed below are fully certified and aligned with the highest safety and quality standards of Querência Port Operations, ensuring productive performance and total integrity in docks and holds.",
+        "lbl-op-mach-select": "Available Machine (TAG / Model)",
+        "lbl-op-loc": "Operation Location",
+        "lbl-op-restr-shortcut": "⚡ Caveats / Operational Restrictions Shortcuts",
+        "lbl-obs-special": "Observation / Special Conditions (Everything typed here is saved and appears in PDF)",
+        "lbl-reg-date": "Registration Date",
+        "lbl-reg-time": "Registration Time",
+        "btn-reg-op-mach": "Register Machine in Operation",
+        "op-list-title": "Operational Machines List & Registration",
+        "th-op-loc": "Operation Location",
+        "th-supervisor": "Supervisor",
+        "th-obs-res": "Observations / Caveats",
+        "th-action": "Action",
+        "msg-no-op": "No machines registered as operational at the moment.",
+        "fleet-list-title": "General Machine Listing",
+        "badge-op": "🟢 OPERATIONAL",
+        "badge-maint": "🔴 IN MAINTENANCE",
+        "badge-rev": "🟡 IN REVISION",
+        "th-current-status": "Current Status",
+        "th-current-loc": "Current Location",
+        "users-title": "Team Access & Login Management",
+        "users-subtitle": "Register new logins for electricians, operators, and staff to access the application.",
+        "users-form-title": "Create New Employee / Electrician Login",
+        "lbl-emp-name": "Employee Name / Description",
+        "lbl-profile": "Access Profile",
+        "role-elec": "Electrician / Refueling",
+        "role-staff": "Operator / General Staff",
+        "lbl-login-name": "Access Username (Login)",
+        "lbl-pass": "Temporary Password",
+        "btn-create-user": "Register & Grant Access",
+        "users-table-title": "Registered Users in System",
+        "th-name": "Name / Description",
+        "th-user": "Username (Login)",
+        "th-profile": "Profile",
+        "hist-title": "History & Reports",
+        "hist-search-ph": "Filter by vessel, machine, operator, electrician or type..."
+    }
+};
+
+const DEFAULT_FLEET = [
+    { id: '1', type: 'Pá Carregadeira', tag: 'PC W20G 36', status: 'ACTIVE', location: 'Pátio Operacional' },
+    { id: '2', type: 'Escavadeira Hidráulica', tag: 'EH-60', status: 'ACTIVE', location: 'Pátio Operacional' },
+    { id: '3', type: 'Empilhadeira', tag: 'EMP-15', status: 'ACTIVE', location: 'Pátio Operacional' },
+    { id: '4', type: 'Bobcat', tag: 'BOB-01', status: 'ACTIVE', location: 'Pátio Operacional' }
+];
+
+const CHECKLIST_ITEMS = {
+    'Pá Carregadeira': [
+        { name: 'Alarme de ré', critical: true },
+        { name: 'Buzina', critical: true },
+        { name: 'Extintor de incêndio', critical: true },
+        { name: 'Giroflex', critical: true },
+        { name: 'Rádio de comunicação', critical: true },
+        { name: 'Pisca alerta', critical: true },
+        { name: 'Cinto de segurança', critical: true },
+        { name: 'Vidros em condições de enxergar', critical: false },
+        { name: 'Sistema de frenagem', critical: false },
+        { name: 'Farol Traseiro', critical: false },
+        { name: 'Farol dianteiro', critical: false },
+        { name: 'Estruturas da cabine/retrovisores', critical: false },
+        { name: 'Esteiras/pneus', critical: false },
+        { name: 'Plataforma e corrimãos', critical: false },
+        { name: 'Ar condicionado', critical: false }
+    ],
+    'Escavadeira Hidráulica': [
+        { name: 'Alarme de ré', critical: true },
+        { name: 'Buzina', critical: true },
+        { name: 'Extintor de incêndio', critical: true },
+        { name: 'Giroflex', critical: true },
+        { name: 'Rádio de comunicação', critical: true },
+        { name: 'Cinto de segurança', critical: true },
+        { name: 'Sistema de frenagem', critical: false },
+        { name: 'Vidros em condições de enxergar', critical: false },
+        { name: 'Estruturas da cabine', critical: false },
+        { name: 'Esteiras / Material Rodante', critical: false },
+        { name: 'Plataforma e acessos', critical: false }
+    ],
+    'Empilhadeira': [
+        { name: 'Combustível / Bateria', critical: true },
+        { name: 'Vazamentos de Óleo/Fluidos', critical: true },
+        { name: 'Pneus / Rodas', critical: true },
+        { name: 'Freio de Serviço e Estacionamento', critical: true },
+        { name: 'Buzina e Alarme de Ré', critical: true },
+        { name: 'Cinto de Segurança', critical: true },
+        { name: 'Garfos e Torre de Elevação', critical: true },
+        { name: 'Extintor de Incêndio', critical: true }
+    ],
+    'Bobcat': [
+        { name: 'Vazamentos Gerais', critical: true },
+        { name: 'Condição dos Pneus / Esteiras', critical: true },
+        { name: 'Sistema de Freios', critical: true },
+        { name: 'Buzina e Alarme de Ré', critical: true },
+        { name: 'Cinto de Segurança', critical: true },
+        { name: 'Extintor de Incêndio', critical: true }
+    ]
+};
+
+let damagesChartInstance = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    initStorage();
+    initLanguage();
+    checkActiveSession();
+});
+
+function initStorage() {
+    if (!localStorage.getItem('fleet')) localStorage.setItem('fleet', JSON.stringify(DEFAULT_FLEET));
+    if (!localStorage.getItem('history')) localStorage.setItem('history', JSON.stringify([]));
+    if (!localStorage.getItem('maintenance')) localStorage.setItem('maintenance', JSON.stringify([]));
+    if (!localStorage.getItem('operational_machines')) localStorage.setItem('operational_machines', JSON.stringify([]));
+    if (!localStorage.getItem('fuel_records')) localStorage.setItem('fuel_records', JSON.stringify([]));
+    
+    if (!localStorage.getItem('app_users')) {
+        const defaultUsers = [
+            { id: 'usr_dono', name: 'Dono (Administrador)', login: 'gamacgael9292', pass: 'Dggama1992@*', role: 'owner' }
+        ];
+        localStorage.setItem('app_users', JSON.stringify(defaultUsers));
+    } else {
+        let users = JSON.parse(localStorage.getItem('app_users'));
+        if (!users.some(u => u.login === 'gamacgael9292')) {
+            users.push({ id: 'usr_dono', name: 'Dono (Administrador)', login: 'gamacgael9292', pass: 'Dggama1992@*', role: 'owner' });
+            localStorage.setItem('app_users', JSON.stringify(users));
+        }
+    }
+}
+
+function initLanguage() {
+    let lang = localStorage.getItem('app_lang') || 'pt';
+    const loginSel = document.getElementById('loginLangSelect');
+    const appSel = document.getElementById('appLangSelect');
+    if (loginSel) loginSel.value = lang;
+    if (appSel) appSel.value = lang;
+    applyLanguage(lang);
+}
+
+function changeLanguage(lang) {
+    localStorage.setItem('app_lang', lang);
+    const loginSel = document.getElementById('loginLangSelect');
+    const appSel = document.getElementById('appLangSelect');
+    if (loginSel) loginSel.value = lang;
+    if (appSel) appSel.value = lang;
+    applyLanguage(lang);
+}
+
+function applyLanguage(lang) {
+    const dict = TRANSLATIONS[lang] || TRANSLATIONS['pt'];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) {
+            el.innerHTML = dict[key];
+        }
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        if (dict[key]) {
+            el.placeholder = dict[key];
+        }
+    });
+
+    const setHtml = (id, key) => { const el = document.getElementById(id); if (el && dict[key]) el.innerHTML = dict[key]; };
+    setHtml('txt-login-title', 'login-title');
+    setHtml('txt-login-subtitle', 'login-subtitle');
+    setHtml('lbl-login-user', 'lbl-login-user');
+    setHtml('lbl-login-pass', 'lbl-login-pass');
+    setHtml('btn-login-submit', 'btn-login-submit');
+    setHtml('txt-login-footer', 'txt-login-footer');
+    setHtml('txt-header-sub', 'txt-header-sub');
+    setHtml('btn-logout', 'btn-logout');
+}
+
+function handleLogin(e) {
+    e.preventDefault();
+       const u = document.getElementById('loginUser').value.trim();
+    const p = document.getElementById('loginPass').value.trim();
+
+    const users = JSON.parse(localStorage.getItem('app_users') || '[]');
+    const found = users.find(usr => usr.login === u && usr.pass === p);
+
+    if (found) {
+        localStorage.setItem('current_session', JSON.stringify(found));
+        document.getElementById('loginUser').value = '';
+        document.getElementById('loginPass').value = '';
+        checkActiveSession();
+    } else {
+        alert(localStorage.getItem('app_lang') === 'en' ? 'Incorrect username or password. Check your credentials.' : 'Usuário ou senha incorretos. Verifique suas credenciais.');
+    }
+}
+
+function logout() {
+    localStorage.removeItem('current_session');
+    document.getElementById('mainAppContainer').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'block';
+}
+
+function checkActiveSession() {
+    const session = JSON.parse(localStorage.getItem('current_session') || 'null');
+    if (!session) {
+        document.getElementById('login-screen').style.display = 'block';
+        document.getElementById('mainAppContainer').style.display = 'none';
+        return;
+    }
+
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('mainAppContainer').style.display = 'block';
+
+    const badge = document.getElementById('currentUserBadge');
+    let roleName = localStorage.getItem('app_lang') === 'en' ? 'Administrator' : 'Administrador';
+    if (session.role === 'electrician') roleName = localStorage.getItem('app_lang') === 'en' ? 'Electrician / Refueling' : 'Eletricista / Abastecimento';
+    if (session.role === 'staff') roleName = localStorage.getItem('app_lang') === 'en' ? 'Staff / Operational' : 'Equipe / Operacional';
+
+    badge.innerHTML = `<span class="status-dot active"></span> <span>Usuário: ${session.name} (${roleName})</span>`;
+
+    const ownerElements = document.querySelectorAll('.owner-only');
+    const ownerActions = document.querySelectorAll('.owner-only-action');
+    const staffElements = document.querySelectorAll('.staff-only');
+    const staffActions = document.querySelectorAll('.staff-only-action');
+    const electricElements = document.querySelectorAll('.electric-only');
+    const electricActions = document.querySelectorAll('.electric-only-action');
+
+    if (session.role === 'owner') {
+        ownerElements.forEach(el => el.style.display = 'inline-flex');
+        ownerActions.forEach(el => el.style.display = 'block');
+        staffElements.forEach(el => el.style.display = 'inline-flex');
+        staffActions.forEach(el => el.style.display = 'block');
+        electricElements.forEach(el => el.style.display = 'inline-flex');
+        electricActions.forEach(el => el.style.display = 'block');
+        renderUsersTable();
+        initDamagesChart();
+        switchTab('dashboard', document.querySelector('.tab-btn'));
+    } else if (session.role === 'electrician') {
+        ownerElements.forEach(el => el.style.display = 'none');
+        ownerActions.forEach(el => el.style.display = 'none');
+        staffElements.forEach(el => el.style.display = 'none');
+        staffActions.forEach(el => el.style.display = 'none');
+        electricElements.forEach(el => el.style.display = 'inline-flex');
+        electricActions.forEach(el => el.style.display = 'block');
+        switchTab('fuel-refuel', document.querySelector('[onclick*=\'fuel-refuel\']'));
+    } else {
+        ownerElements.forEach(el => el.style.display = 'none');
+        ownerActions.forEach(el => el.style.display = 'none');
+        electricElements.forEach(el => el.style.display = 'none');
+        electricActions.forEach(el => el.style.display = 'none');
+        staffElements.forEach(el => el.style.display = 'inline-flex');
+        staffActions.forEach(el => el.style.display = 'block');
+        switchTab('machine-check', document.querySelector('[onclick*=\'machine-check\']'));
+    }
+
+    setupDateTimeDefaults();
+    populateModelSelectors();
+    updateFuelMachineSelector();
+    
+    const maintEntryTypeEl = document.getElementById('maintEntryType');
+    if (maintEntryTypeEl) updateDefaultObs(maintEntryTypeEl.value);
+    
+    updateDashboard();
+    renderFleet();
+    renderOperationalFleet();
+    renderFuelTable();
+    updateOperationalSelectors();
+}
+
+function createNewUser(e) {
+    e.preventDefault();
+    const name = document.getElementById('newUserName').value.trim();
+    const role = document.getElementById('newUserRole').value;
+    const login = document.getElementById('newUserLogin').value.trim();
+    const pass = document.getElementById('newUserPass').value.trim();
+
+    if (!name || !login || !pass) return;
+
+    let users = JSON.parse(localStorage.getItem('app_users') || '[]');
+    if (users.some(u => u.login === login)) {
+        alert('Este login já está cadastrado. Escolha outro nome de usuário.');
+        return;
+    }
+
+    users.push({
+        id: 'usr_' + Date.now(),
+        name: name,
+        login: login,
+        pass: pass,
+        role: role
+    });
+
+    localStorage.setItem('app_users', JSON.stringify(users));
+    alert(`Login para "${name}" criado com sucesso!`);
+    document.getElementById('newUserName').value = '';
+    document.getElementById('newUserLogin').value = '';
+    document.getElementById('newUserPass').value = '';
+    renderUsersTable();
+}
+
+function deleteUser(id) {
+    if (!confirm('Tem certeza que deseja remover este acesso?')) return;
+    let users = JSON.parse(localStorage.getItem('app_users') || '[]');
+    users = users.filter(u => u.id !== id);
+    localStorage.setItem('app_users', JSON.stringify(users));
+    renderUsersTable();
+}
+
+function renderUsersTable() {
+    const tbody = document.getElementById('fuelTableBody');
+    if (!tbody) return;
+    const fuelRecords = JSON.parse(localStorage.getItem('fuel_records') || '[]');
+    tbody.innerHTML = '';
+
+    if (fuelRecords.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Nenhum abastecimento registrado até o momento.</td></tr>';
+        return;
+    }
+
+    fuelRecords.forEach(f => {
+        tbody.innerHTML += `
+            <tr>
+                <td><strong>${f.equipmentModel}</strong><br><code>${f.equipmentTag}</code></td>
+                <td><strong>${f.litters} L</strong></td>
+                <td>${f.meter}</td>
+                <td>${f.electrician}</td>
+                <td>${f.date} às ${f.time}</td>
+                <td>
+                    <span style="font-weight: bold; color: #059669; font-size: 0.88rem;">100% Abastecido</span>
+                    <div class="fuel-progress-container">
+                        <div class="fuel-progress-bar" style="width: 100%;"></div>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+function prepareFuelEmail(e) {
+    const fuelRecords = JSON.parse(localStorage.getItem('fuel_records') || '[]');
+    if (fuelRecords.length === 0) {
+        alert('Não há registros de abastecimento para enviar por e-mail.');
+        e.preventDefault();
+        return;
+    }
+
+    let summaryText = "";
+    fuelRecords.forEach((f, idx) => {
+        summaryText += `${idx + 1}. TAG: ${f.equipmentTag} (${f.equipmentModel}) | Litros: ${f.litters}L | Horímetro: ${f.meter} | Eletricista: ${f.electrician} | Data: ${f.date} ${f.time}\n`;
+    });
+
+    const subject = "[QUERÊNCIA] Relatório Oficial de Abastecimento de Combustível da Frota";
+    const body = `Prezados,\n\nSegue o relatório consolidado de abastecimentos de combustível realizados nas máquinas da Querência Operações Portuárias:\n\n` + summaryText + `\nAtenciosamente,\nSetor de Abastecimento e Elétrica - Querência`;
+
+    const btn = document.getElementById('emailFuelBtn');
+    if (btn) btn.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function printFuelReportPDF() {
+    const fuelRecords = JSON.parse(localStorage.getItem('fuel_records') || '[]');
+    if (fuelRecords.length === 0) {
+        alert('Não há registros de abastecimento para gerar o PDF.');
+        return;
+    }
+
+    let rowsHtml = '';
+    let totalLitters = 0;
+    fuelRecords.forEach((f, idx) => {
+        totalLitters += f.litters;
+        rowsHtml += `<tr><td>${idx + 1}</td><td><strong>${f.equipmentModel}</strong></td><td><strong>${f.equipmentTag}</strong></td><td>${f.litters} L</td><td>${f.meter}</td><td>${f.electrician}</td><td>${f.date} ${f.time}</td></tr>`;
+    });
+
+    const now = new Date();
+    const currentDate = now.toLocaleDateString('pt-BR');
+    const currentTime = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+    const container = document.getElementById('print-report-container');
+    container.innerHTML = `
+        <div class="pdf-page">
+            <div class="pdf-header">
+                <h2>QUERÊNCIA OPERAÇÕES PORTUÁRIAS</h2>
+                <p>Relatório Consolidado de Abastecimento de Combustível da Frota</p>
+            </div>
+            <div class="pdf-grid-info">
+                <div><span>Data de Emissão:</span> <span>${currentDate} às ${currentTime}</span></div>
+                <div><span>Total Consumido:</span> <span style="color:#059669;">${totalLitters.toFixed(1)} Litros</span></div>
+            </div>
+            <div class="pdf-section-title">Histórico de Abastecimento (Tanques 100% Cheios)</div>
+            <table class="pdf-table">
+                <thead><tr><th>#</th><th>TIPO</th><th>TAG</th><th>LITROS</th><th>HORÍMETRO</th><th>ELETRICISTA</th><th>DATA/HORA</th></tr></thead>
+                <tbody>${rowsHtml}</tbody>
+            </table>
+            <div class="pdf-obs-box" style="background-color: #f0fdf4; border-color: #bbf7d0; color: #065f46; font-size: 0.75rem; margin-top: 15px;">
+                <strong>CONFORMIDADE DE ABASTECIMENTO:</strong> Todos os equipamentos listados foram devidamente abastecidos, com tanques atestados em 100% de capacidade, garantindo autonomia plena para os turnos operacionais no cais e porões.
+            </div>
+            <div class="pdf-signature"><div class="pdf-signature-line"></div><div class="pdf-signature-text">Eletricista / Supervisor Responsável</div></div>
+        </div>
+    `;
+    setTimeout(() => { window.print(); }, 300);
+}
+
+function printActiveChecklistPDF() {
+    const model = document.getElementById('machModel').value;
+    const tag = document.getElementById('machTag').value;
+    const operator = document.getElementById('machOperator').value;
+
+    if (!model || !tag || !operator) {
+        alert('Selecione o modelo, a TAG e preencha o operador para gerar o PDF da inspeção.');
+        return;
+    }
+
+    const items = CHECKLIST_ITEMS[model] || [];
+    let itemsHtml = '';
+    items.forEach((item, idx) => {
+        const radio = document.querySelector(`input[name="status_${idx}"]:checked`);
+        const status = radio ? radio.value : 'OK';
+        const obsEl = document.getElementById(`obs_${idx}`);
+        const obs = obsEl ? (obsEl.value || '-') : '-';
+        const statusColor = status === 'OK' ? '#059669' : (status === 'NÃO OK' ? '#dc2626' : '#64748b');
+        
+        itemsHtml += `<tr><td>${item.name}</td><td style="font-weight:700; color:${statusColor}; text-transform: uppercase;">${status}</td><td>${obs}</td></tr>`;
+    });
+
+    const now = new Date();
+    const currentDate = now.toLocaleDateString('pt-BR');
+    const currentTime = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const genObs = document.getElementById('machGeneralObs').value || 'Nenhuma observação informada.';
+
+    const container = document.getElementById('print-report-container');
+    container.innerHTML = `
+        <div class="pdf-page">
+            <div class="pdf-header"><h2>QUERÊNCIA OPERAÇÕES PORTUÁRIAS</h2><p>Relatório de Checklist de Máquina</p></div>
+            <div class="pdf-grid-info">
+                <div><span>Equipamento:</span> <span>${model} (${tag})</span></div>
+                <div><span>Operador:</span> <span>${operator}</span></div>
+                <div><span>Data/Hora:</span> <span>${currentDate} às ${currentTime}</span></div>
+            </div>
+            <table class="pdf-table"><thead><tr><th>Item</th><th>Status</th><th>Obs</th></tr></thead><tbody>${itemsHtml}</tbody></table>
+            <div class="pdf-obs-box">${genObs}</div>
+            <div class="pdf-signature"><div class="pdf-signature-line"></div><div class="pdf-signature-text">Operador / TST</div></div>
+        </div>
+    `;
+    setTimeout(() => { window.print(); }, 300);
+}
+
+function updateDefaultObs(type) {
+    const obsInput = document.getElementById('maintEntryObs');
+    if (!obsInput) return;
+    if (type === 'REVISION') {
+        obsInput.value = "Máquina em revisão periódica programada, operação suspensa - aguardando liberação.";
+    } else {
+       obsInput.value = "Máquina em manutenção preventiva, operação suspensa - aguardando liberação.";
+    }
+}
+
+function insertMaintDamageShortcut(val) {
+    if (!val) return;
+    const reasonTextarea = document.getElementById('maintEntryReason');
+    if (!reasonTextarea) return;
+    const prefix = "AVARIA REGISTRADA: ";
+    if (reasonTextarea.value.trim() !== "") {
+        if (!reasonTextarea.value.includes(val)) reasonTextarea.value += " | " + prefix + val;
+    } else {
+        reasonTextarea.value = prefix + val;
+    }
+}
+
+function insertMaintRestrShortcut(val) {
+    if (!val) return;
+    const obsTextarea = document.getElementById('maintReleaseObs');
+    if (!obsTextarea) return;
+    obsTextarea.value = obsTextarea.value.trim() !== "" ? obsTextarea.value + " " + val : val;
+}
+
+function insertOpRestrShortcut(val) {
+    if (!val) return;
+    const obsTextarea = document.getElementById('operationalObs');
+    if (!obsTextarea) return;
+    obsTextarea.value = obsTextarea.value.trim() !== "" ? obsTextarea.value + " " + val : val;
+}
+
+function populateModelSelectors() {
+    const select = document.getElementById('machModel');
+    if (!select) return;
+    select.innerHTML = `
+        <option value="">Selecione o Modelo</option>
+        <option value="Pá Carregadeira">Pá Carregadeira</option>
+        <option value="Escavadeira Hidráulica">Escavadeira Hidráulica</option>
+        <option value="Empilhadeira">Empilhadeira</option>
+        <option value="Bobcat">Bobcat</option>
+    `;
+    updateMaintenanceSelectors();
+}
+
+function updateMaintenanceSelectors() {
+    const fleet = JSON.parse(localStorage.getItem('fleet') || '[]');
+    const maintenance = JSON.parse(localStorage.getItem('maintenance') || '[]');
+    const maintTags = maintenance.map(m => m.tag);
+    
+    const entrySelect = document.getElementById('maintEntryTag');
+    if (entrySelect) {
+        entrySelect.innerHTML = '<option value="">Selecione o Equipamento</option>';
+        fleet.filter(f => !maintTags.includes(f.tag)).forEach(f => {
+            entrySelect.innerHTML += `<option value="${f.tag}">${f.type} - ${f.tag}</option>`;
+        });
+    }
+
+    const releaseSelect = document.getElementById('maintReleaseTag');
+    if (releaseSelect) {
+        releaseSelect.innerHTML = '<option value="">Selecione a Máquina</option>';
+        maintenance.forEach(m => {
+            releaseSelect.innerHTML += `<option value="${m.tag}">${m.tag} (${m.typeStr || 'Oficina'})</option>`;
+        });
+    }
+}
+
+function updateOperationalSelectors() {
+    const fleet = JSON.parse(localStorage.getItem('fleet') || '[]');
+    const maintenance = JSON.parse(localStorage.getItem('maintenance') || '[]');
+    const maintTags = maintenance.map(m => m.tag);
+    
+    const select = document.getElementById('operationalEntrySelect');
+    if (!select) return;
+    select.innerHTML = '<option value="">Selecione uma máquina operacional</option>';
+    
+    fleet.filter(f => !maintTags.includes(f.tag)).forEach(f => {
+        select.innerHTML += `<option value="${f.tag}">${f.type} - ${f.tag}</option>`;
+    });
+}
+
+function updateDashboard() {
+    const history = JSON.parse(localStorage.getItem('history') || '[]');
+    const fleet = JSON.parse(localStorage.getItem('fleet') || '[]');
+    const maintenance = JSON.parse(localStorage.getItem('maintenance') || '[]');
+    const fuelRecords = JSON.parse(localStorage.getItem('fuel_records') || '[]');
+    
+    const activeBlocks = history.filter(h => h.status === 'BLOCKED').length;
+    const maintCount = maintenance.filter(m => m.type === 'MAINTENANCE').length;
+    const revCount = maintenance.filter(m => m.type === 'REVISION').length;
+    const opCount = fleet.filter(f => f.status === 'ACTIVE').length;
+
+    const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+    
+    setTxt('stat-total', history.filter(h => h.type === 'Machine').length);
+    setTxt('stat-fuel-total', fuelRecords.length);
+    setTxt('stat-blocks', activeBlocks);
+    setTxt('stat-maint', maintCount);
+    setTxt('stat-rev', revCount);
+    setTxt('stat-op', opCount);
+    setTxt('stat-fleet', fleet.length);
+
+    const alertZone = document.getElementById('alert-zone');
+    if (alertZone) {
+        if (activeBlocks > 0 || maintenance.length > 0) {
+            alertZone.style.display = 'flex';
+            setTxt('alert-text', `Existem ${activeBlocks} bloqueio(s), ${maintCount} máquina(s) em manutenção e ${revCount} em revisão.`);
+        } else {
+            alertZone.style.display = 'none';
+        }
+    }
+
+    const session = JSON.parse(localStorage.getItem('current_session') || '{}');
+    if (session.role === 'owner') {
+        initDamagesChart();
+    }
+}
+
+function initDamagesChart() {
+    const canvas = document.getElementById('damagesChart');
+    if (!canvas) return;
+
+    const history = JSON.parse(localStorage.getItem('history') || '[]');
+    let vidrosCount = 0, mangueirasCount = 0, hidraulicaCount = 0, outrosCount = 0;
+
+    history.forEach(h => {
+        let textToCheck = "";
+        if (h.type === 'Machine') {
+            textToCheck += (h.generalObs || "").toLowerCase();
+            if (h.details) h.details.forEach(d => textToCheck += " " + (d.obs || "").toLowerCase() + " " + (d.item || "").toLowerCase());
+        } else if (h.type === 'ReleaseReport') {
+            textToCheck += (h.originalReason || "").toLowerCase() + " " + (h.workDone || "").toLowerCase();
+        }
+
+        if (textToCheck.includes('vidro') || textToCheck.includes('parabrisa') || textToCheck.includes('retrovisor')) vidrosCount++;
+        if (textToCheck.includes('mangueira') || textToCheck.includes('estouro')) mangueirasCount++;
+        if (textToCheck.includes('hidráulic') || textToCheck.includes('vazamento')) hidraulicaCount++;
+        if (textToCheck.includes('avaria') && !textToCheck.includes('vidro') && !textToCheck.includes('mangueira') && !textToCheck.includes('hidráulic')) outrosCount++;
+    });
+
+    const dataValues = [vidrosCount, mangueirasCount, hidraulicaCount, outrosCount];
+    if (damagesChartInstance) damagesChartInstance.destroy();
+
+    damagesChartInstance = new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: ['Vidros / Espelhos', 'Mangueiras', 'Sistema Hidráulico', 'Outras Avarias'],
+            datasets: [{
+                label: 'Ocorrências Registradas',
+                data: dataValues,
+                backgroundColor: ['#2563eb', '#dc2626', '#d97706', '#475569'],
+                borderWidth: 1,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+}
+
+function switchTab(tabId, btnElement) {
+    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    
+    const targetSection = document.getElementById(tabId);
+    if (targetSection) targetSection.classList.add('active');
+    if (btnElement) btnElement.classList.add('active');
+
+    if (tabId === 'history') renderHistory();
+    if (tabId === 'fleet') { renderFleet(); renderOperationalFleet(); }
+    if (tabId === 'maintenance') renderMaintenanceTable();
+    if (tabId === 'fuel-refuel') renderFuelTable();
+    if (tabId === 'dashboard') {
+        const session = JSON.parse(localStorage.getItem('current_session') || '{}');
+        if (session.role === 'owner') initDamagesChart();
+    }
+}
+
+function toggleShipField() {
+    const opType = document.getElementById('machOpType');
+    const groupShip = document.getElementById('groupShipName');
+    if (opType && groupShip) {
+        groupShip.style.display = (opType.value !== 'Operação Normal') ? 'block' : 'none';
+    }
+}
+
+function checkEquipmentStatus(tag) {
+    const warningBox = document.getElementById('machMaintWarning');
+    if (!warningBox) return;
+    const maintenance = JSON.parse(localStorage.getItem('maintenance') || '[]');
+    const isIndisponible = maintenance.some(m => m.tag === tag);
+    warningBox.style.display = isIndisponible ? 'flex' : 'none';
+}
+
+function loadChecklistItems() {
+    const modelEl = document.getElementById('machModel');
+    if (!modelEl) return;
+    const model = modelEl.value;
+    const body = document.getElementById('machineItemsBody');
+    const tagSelect = document.getElementById('machTag');
+    
+    if (!body || !tagSelect) return;
+
+    body.innerHTML = '';
+    tagSelect.innerHTML = '<option value="">Selecione a TAG</option>';
+
+    if (!model) {
+        body.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Selecione um equipamento para carregar os itens.</td></tr>';
+        return;
+    }
+
+    const fleet = JSON.parse(localStorage.getItem('fleet') || '[]');
+    fleet.filter(i => i.type === model).forEach(i => tagSelect.innerHTML += `<option value="${i.tag}">${i.tag}</option>`);
+
+    (CHECKLIST_ITEMS[model] || []).forEach((item, idx) => {
+        const badge = item.critical ? '<span class="badge badge-critical">Crítico</span>' : '<span class="badge badge-normal">Normal</span>';
+        body.innerHTML += `
+            <tr id="item-row-${idx}">
+                <td><strong>${item.name}</strong><br>${badge}</td>
+                <td>
+                    <div class="radio-group">
+                        <label><input type="radio" name="status_${idx}" value="OK" checked onchange="updateRowStyle(${idx})"> OK</label>
+                        <label><input type="radio" name="status_${idx}" value="NÃO OK" onchange="updateRowStyle(${idx})"> NÃO OK</label>
+                        <label><input type="radio" name="status_${idx}" value="Não se Aplica" onchange="updateRowStyle(${idx})"> Não se Aplica</label>
+                    </div>
+                </td>
+                <td><input type="text" id="obs_${idx}" placeholder="Observações do item..."></td>
+            </tr>
+        `;
+    });
+}
+
+function updateRowStyle(idx) {
+    const row = document.getElementById(`item-row-${idx}`);
+    const radio = document.querySelector(`input[name="status_${idx}"]:checked`);
+    if (row && radio) {
+        if (radio.value === 'NÃO OK') row.classList.add('non-compliant');
+        else row.classList.remove('non-compliant');
+    }
+}
+
+function saveMachineCheck() {
+    const model = document.getElementById('machModel').value;
+    const tag = document.getElementById('machTag').value;
+    const operator = document.getElementById('machOperator').value;
+    const date = document.getElementById('machDate').value;
+    const time = document.getElementById('machTime').value;
+
+    if (!model || !tag || !operator) {
+        alert('Preencha todos os campos obrigatórios.');
+        return;
+    }
+
+    const maintenance = JSON.parse(localStorage.getItem('maintenance') || '[]');
+    if (maintenance.some(m => m.tag === tag)) {
+        alert('Atenção: Este equipamento está em manutenção/revisão e não pode ser operado.');
+        return;
+    }
+
+    const items = CHECKLIST_ITEMS[model];
+    let hasCriticalFail = false;
+    let criticalList = [];
+    let details = [];
+
+    items.forEach((item, idx) => {
+        const radio = document.querySelector(`input[name="status_${idx}"]:checked`);
+        const status = radio ? radio.value : 'OK';
+        const obsEl = document.getElementById(`obs_${idx}`);
+        const obs = obsEl ? (obsEl.value || '-') : '-';
+
+        if (status === 'NÃO OK' && item.critical) {
+            hasCriticalFail = true;
+            if (!criticalList.includes(item.name)) criticalList.push(item.name);
+        }
+        details.push({ item: item.name, critical: item.critical, status: status, obs: obs });
+    });
+
+    const genObsEl = document.getElementById('machGeneralObs');
+    let generalObs = genObsEl ? genObsEl.value.trim() : '';
+    if (hasCriticalFail) {
+        const failureText = `[BLOQUEIO TÉCNICO - FALHA EM ITEM CRÍTICO: ${criticalList.join(', ')}]`;
+        generalObs = generalObs === '' ? failureText : failureText + ' | ' + generalObs;
+    } else if (generalObs === '') {
+        generalObs = 'Nenhuma observação informada.';
+    }
+
+    const record = {
+        id: 'chk_' + Date.now(),
+        type: 'Machine',
+        equipmentModel: model,
+        equipmentTag: tag,
+        operator: operator,
+        shift: document.getElementById('machShift').value,
+        operationType: document.getElementById('machOpType').value,
+        shipName: document.getElementById('machShipName') ? document.getElementById('machShipName').value : 'N/A',
+        date: date,
+        time: time,
+        generalObs: generalObs,
+        status: hasCriticalFail ? 'BLOCKED' : 'PASSED',
+        criticalViolations: criticalList,
+        details: details
+    };
+
+    const history = JSON.parse(localStorage.getItem('history') || '[]');
+    history.unshift(record);
+    localStorage.setItem('history', JSON.stringify(history));
+
+    updateDashboard();
+
+    if (hasCriticalFail) {
+        alert(`Atenção: Falha em item crítico [${criticalList.join(', ')}]. Equipamento bloqueado.`);
+    } else {
+        alert('Checklist salvo com sucesso!');
+    }
+
+    document.getElementById('formMachineCheck').reset();
+    const warn = document.getElementById('machMaintWarning');
+    if (warn) warn.style.display = 'none';
+    loadChecklistItems();
+}
+
+function saveOpCheck() {
+    const ship = document.getElementById('opShip').value;
+    if (!ship) { alert('Informe o navio.'); return; }
+
+    const record = {
+        id: 'op_' + Date.now(),
+        type: 'Operation',
+        ship: ship,
+        berth: document.getElementById('opBerth').value,
+        supervisor: document.getElementById('opSupervisor').value,
+        date: document.getElementById('opDate').value,
+        time: document.getElementById('opTime').value
+    };
+
+    const history = JSON.parse(localStorage.getItem('history') || '[]');
+    history.unshift(record);
+    localStorage.setItem('history', JSON.stringify(history));
+
+    alert('Checklist de operação salvo!');
+    document.getElementById('formOpCheck').reset();
+}
+
+function registerMaintenance(e) {
+    e.preventDefault();
+    const tag = document.getElementById('maintEntryTag').value;
+    const type = document.getElementById('maintEntryType').value;
+    const location = document.getElementById('maintEntryLocation').value;
+    const reason = document.getElementById('maintEntryReason').value;
+    const obs = document.getElementById('maintEntryObs').value;
+    const date = document.getElementById('maintEntryDate').value;
+    const time = document.getElementById('maintEntryTime').value;
+
+    if (!tag) return;
+
+    const fleet = JSON.parse(localStorage.getItem('fleet') || '[]');
+    const item = fleet.find(f => f.tag === tag);
+    const typeStr = item ? item.type : 'Equipamento';
+
+    const maintenance = JSON.parse(localStorage.getItem('maintenance') || '[]');
+    const record = {
+        tag: tag,
+        typeStr: typeStr,
+        type: type,
+        location: location,
+        entryDate: date,
+        entryTime: time,
+        reason: reason,
+        obs: obs
+    };
+    maintenance.push(record);
+    localStorage.setItem('maintenance', JSON.stringify(maintenance));
+
+    removeOperationalMachineSilently(tag);
+
+    if (item) item.status = (type === 'REVISION') ? 'REVISION' : 'MAINTENANCE';
+    localStorage.setItem('fleet', JSON.stringify(fleet));
+
+    const actionName = (type === 'REVISION') ? 'Revisão' : 'Manutenção';
+    alert(`Equipamento ${tag} encaminhado para ${actionName} (${location}) com sucesso.`);
+    
+    document.getElementById('formMaintEntry').reset();
+    const dmg = document.getElementById('maintDamageShortcut');
+    if (dmg) dmg.value = "";
+    setupDateTimeDefaults();
+    updateDefaultObs(document.getElementById('maintEntryType').value);
+    updateMaintenanceSelectors();
+    updateOperationalSelectors();
+    updateDashboard();
+    renderMaintenanceTable();
+    renderFleet();
+    renderOperationalFleet();
+}
+
+function populateReleaseDetails(tag) {
+    const maintenance = JSON.parse(localStorage.getItem('maintenance') || '[]');
+    const item = maintenance.find(m => m.tag === tag);
+    const workInput = document.getElementById('maintReleaseWork');
+    if (item && workInput) {
+        const prefix = (item.type === 'REVISION') ? 'Revisão referente a: ' : 'Reparo referente a: ';
+        workInput.placeholder = prefix + item.reason;
+    }
+}
+
+function releaseMaintenance(e) {
+    e.preventDefault();
+    const tag = document.getElementById('maintReleaseTag').value;
+    const work = document.getElementById('maintReleaseWork').value;
+    const obsEl = document.getElementById('maintReleaseObs');
+    let obs = obsEl ? obsEl.value.trim() : '';
+    if (!obs) {
+        obs = "Equipamento rigorosamente inspecionado, testado em todos os subsistemas críticos e julgado em pleno funcionamento. Apto para retorno imediato e irrestrito às operações portuárias de convés e porão.";
+    }
+    const tech = document.getElementById('maintReleaseTech').value;
+    const date = document.getElementById('maintReleaseDate').value;
+    const time = document.getElementById('maintReleaseTime').value;
+
+    if (!tag) return;
+
+    const maintenance = JSON.parse(localStorage.getItem('maintenance') || '[]');
+    const originalEntry = maintenance.find(m => m.tag === tag);
+    const updatedMaint = maintenance.filter(m => m.tag !== tag);
+    localStorage.setItem('maintenance', JSON.stringify(updatedMaint));
+
+    const fleet = JSON.parse(localStorage.getItem('fleet') || '[]');
+    const item = fleet.find(f => f.tag === tag);
+    if (item) item.status = 'ACTIVE';
+    localStorage.setItem('fleet', JSON.stringify(fleet));
+
+    const releaseReport = {
+        id: 'rel_' + Date.now(),
+        type: 'ReleaseReport',
+        equipmentTag: tag,
+        equipmentModel: item ? item.type : 'N/A',
+        interventionType: originalEntry ? (originalEntry.type === 'REVISION' ? 'Revisão' : 'Manutenção') : 'Intervenção',
+        workDone: work,
+        restrictionObs: obs,
+        technician: tech,
+        date: date,
+        time: time,
+        originalReason: originalEntry ? originalEntry.reason : 'N/A'
+    };
+const history = JSON.parse(localStorage.getItem('history') || '[]');
+    history.unshift(releaseReport);
+    localStorage.setItem('history', JSON.stringify(history));
+
+    const actionName = originalEntry && originalEntry.type === 'REVISION' ? 'Revisão' : 'Manutenção';
+    alert(`Relatório de liberação gerado para o equipamento ${tag} (${actionName}). Pronto para operação.`);
+    document.getElementById('formMaintRelease').reset();
+    const rest = document.getElementById('maintRestrShortcut');
+    if (rest) rest.value = "";
+    setupDateTimeDefaults();
+    updateMaintenanceSelectors();
+    updateOperationalSelectors();
+    updateDashboard();
+    renderMaintenanceTable();
+    renderFleet();
+    renderOperationalFleet();
+}
+
+function registerOperationalMachine(e) {
+    e.preventDefault();
+    const tag = document.getElementById('operationalEntrySelect').value;
+    const location = document.getElementById('operationalLocation').value;
+    const supervisor = document.getElementById('operationalSupervisor').value;
+    const obsEl = document.getElementById('operationalObs');
+    let obs = obsEl ? obsEl.value.trim() : '';
+    if (!obs) {
+        obs = "Máquina operando em condições normais e irrestritas, com total conformidade de segurança.";
+    }
+    const date = document.getElementById('operationalDate').value;
+    const time = document.getElementById('operationalTime').value;
+
+    if (!tag || !location || !supervisor) {
+        alert('Preencha todos os campos obrigatórios para registrar a máquina operacional.');
+        return;
+    }
+
+    const fleet = JSON.parse(localStorage.getItem('fleet') || '[]');
+    const item = fleet.find(f => f.tag === tag);
+    const typeStr = item ? item.type : 'Equipamento';
+
+    const operational = JSON.parse(localStorage.getItem('operational_machines') || '[]');
+    const filteredOp = operational.filter(o => o.tag !== tag);
+
+    const record = {
+        id: 'op_mach_' + Date.now(),
+        tag: tag,
+        typeStr: typeStr,
+        location: location,
+        supervisor: supervisor,
+        obs: obs,
+        date: date,
+        time: time
+    };
+    filteredOp.push(record);
+    localStorage.setItem('operational_machines', JSON.stringify(filteredOp));
+
+    alert(`Máquina ${tag} registrada com sucesso na lista de equipamentos operacionais.`);
+
+    document.getElementById('formOperationalEntry').reset();
+    const opRest = document.getElementById('opRestrShortcut');
+    if (opRest) opRest.value = "";
+    setupDateTimeDefaults();
+    updateOperationalSelectors();
+    renderOperationalFleet();
+}
+
+function removeOperationalMachineSilently(tag) {
+    const operational = JSON.parse(localStorage.getItem('operational_machines') || '[]');
+    const updated = operational.filter(o => o.tag !== tag);
+    localStorage.setItem('operational_machines', JSON.stringify(updated));
+}
+
+function removeOperationalMachine(id) {
+    if (!confirm('Remover este registro de máquina operacional?')) return;
+    let operational = JSON.parse(localStorage.getItem('operational_machines') || '[]');
+    operational = operational.filter(o => o.id !== id);
+    localStorage.setItem('operational_machines', JSON.stringify(operational));
+    updateOperationalSelectors();
+    renderOperationalFleet();
+}
+
+function renderOperationalFleet() {
+    const tbody = document.getElementById('operationalFleetTableBody');
+    if (!tbody) return;
+    const operational = JSON.parse(localStorage.getItem('operational_machines') || '[]');
+    tbody.innerHTML = '';
+
+    if (operational.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Nenhuma máquina registrada como operacional no momento.</td></tr>';
+        return;
+    }
+
+    operational.forEach(o => {
+        tbody.innerHTML += `
+            <tr>
+                <td><strong>${o.typeStr}</strong></td>
+                <td><strong>${o.tag}</strong></td>
+                <td>${o.location}</td>
+                <td>${o.supervisor}</td>
+                <td><small style="color: #059669; font-weight: bold;">${o.obs}</small></td>
+                <td style="text-align: right;"><button class="btn btn-danger" style="width:auto; padding:6px 12px; font-size:0.85rem;" onclick="removeOperationalMachine('${o.id}')">Remover</button></td>
+            </tr>
+        `;
+    });
+}
+
+function renderMaintenanceTable() {
+    const tbody = document.getElementById('maintenanceTableBody');
+    if (!tbody) return;
+    const maintenance = JSON.parse(localStorage.getItem('maintenance') || '[]');
+    const fleet = JSON.parse(localStorage.getItem('fleet') || '[]');
+    tbody.innerHTML = '';
+
+    if (maintenance.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Nenhuma máquina na oficina no momento.</td></tr>';
+        return;
+    }
+
+    maintenance.forEach(m => {
+        const fleetItem = fleet.find(f => f.tag === m.tag);
+        const type = fleetItem ? fleetItem.type : 'Equipamento';
+        const interTypeStr = (m.type === 'REVISION') ? '<span class="badge badge-revision">🟡 REVISÃO PROGRAMADA</span>' : '<span class="badge badge-maintenance">🔴 MANUTENÇÃO CORRETIVA/PREV.</span>';
+        
+        tbody.innerHTML += `
+            <tr class="${m.type === 'REVISION' ? 'revision-row' : 'maintenance-row'}">
+                <td><strong>${type}</strong></td>
+                <td><strong>${m.tag}</strong></td>
+                <td>${interTypeStr}</td>
+                <td><strong>${m.location}</strong></td>
+                <td>${m.entryDate} às ${m.entryTime}</td>
+                <td>${interTypeStr}</td>
+            </tr>
+        `;
+    });
+}
+
+function prepareMaintEmail(e) {
+    const maintenance = JSON.parse(localStorage.getItem('maintenance') || '[]');
+    if (maintenance.length === 0) {
+        alert('Não há equipamentos em manutenção ou revisão no momento para enviar por e-mail.');
+        e.preventDefault();
+        return;
+    }
+
+    let summaryText = "";
+    maintenance.forEach((m, idx) => {
+        const interType = (m.type === 'REVISION') ? 'REVISÃO PROGRAMADA' : 'MANUTENÇÃO';
+        summaryText += `${idx + 1}. [${interType}] TAG: ${m.tag} | Local: ${m.location} | Entrada: ${m.entryDate} às ${m.entryTime} | Motivo: ${m.reason}\n`;
+    });
+
+    const subject = "[QUERÊNCIA] Comunicado Oficial de Retenção Técnica - Relatório de Manutenção e Revisão";
+    const body = `Prezados,\n\nSegue o relatório consolidado de equipamentos em retenção técnica na oficina:\n\n` + summaryText + `\nAtenciosamente,\nEquipe de Operações Portuárias - Querência`;
+
+    const btn = document.getElementById('emailMaintBtn');
+    if (btn) btn.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function prepareOperationalEmail(e) {
+    const operational = JSON.parse(localStorage.getItem('operational_machines') || '[]');
+    if (operational.length === 0) {
+        alert('Não há equipamentos operacionais registrados para enviar por e-mail.');
+        e.preventDefault();
+        return;
+    }
+
+    let summaryText = "";
+    operational.forEach((o, idx) => {
+        summaryText += `${idx + 1}. Tipo: ${o.typeStr} | TAG: ${o.tag} | Local: ${o.location} | Supervisor: ${o.supervisor} | Obs: ${o.obs}\n`;
+    });
+
+    const subject = "[QUERÊNCIA] Garantia de Conformidade Operacional - Relatório de Máquinas em Operação";
+    const body = `Prezados,\n\nSegue o relatório consolidado de máquinas operacionais:\n\n` + summaryText + `\nAtenciosamente,\nEquipe de Operações Portuárias - Querência`;
+
+    const btn = document.getElementById('emailOperationalBtn');
+    if (btn) btn.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function printMaintenanceReportPDF() {
+    const maintenance = JSON.parse(localStorage.getItem('maintenance') || '[]');
+    const fleet = JSON.parse(localStorage.getItem('fleet') || '[]');
+    
+    if (maintenance.length === 0) {
+        alert('Não há equipamentos em manutenção ou revisão no momento para gerar o relatório.');
+        return;
+    }
+
+    let rowsHtml = '';
+    maintenance.forEach((m, idx) => {
+        const fleetItem = fleet.find(f => f.tag === m.tag);
+        const type = fleetItem ? fleetItem.type : 'Equipamento';
+        const interType = (m.type === 'REVISION') ? 'REVISÃO PROGRAMADA' : 'MANUTENÇÃO';
+        rowsHtml += `<tr><td>${idx + 1}</td><td><strong>${type}</strong></td><td><strong>${m.tag}</strong></td><td>${interType}</td><td>${m.entryDate} às ${m.entryTime}</td><td>${m.reason}</td></tr>`;
+    });
+
+    const now = new Date();
+    const currentDate = now.toLocaleDateString('pt-BR');
+    const currentTime = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+    const container = document.getElementById('print-report-container');
+    container.innerHTML = `
+        <div class="pdf-page">
+            <div class="pdf-header">
+                <h2>QUERÊNCIA OPERAÇÕES PORTUÁRIAS</h2>
+                <p>Relatório Consolidado de Equipamentos em Manutenção e Revisão</p>
+            </div>
+            <div class="pdf-grid-info">
+                <div><span>Data de Emissão:</span> <span>${currentDate} às ${currentTime}</span></div>
+                <div><span>Total na Oficina:</span> <span style="color:#dc2626;">${maintenance.length} equipamento(s)</span></div>
+            </div>
+            <div class="pdf-section-title">Relação de Máquinas Paradas</div>
+            <table class="pdf-table">
+                <thead><tr><th>#</th><th>TIPO</th><th>TAG</th><th>INTERVENÇÃO</th><th>ENTRADA</th><th>MOTIVO</th></tr></thead>
+                <tbody>${rowsHtml}</tbody>
+            </table>
+            <div class="pdf-signature"><div class="pdf-signature-line"></div><div class="pdf-signature-text">Supervisor de Manutenção / Oficina</div></div>
+        </div>
+    `;
+    setTimeout(() => { window.print(); }, 300);
+}
+
+function printOperationalFleetPDF() {
+    const operational = JSON.parse(localStorage.getItem('operational_machines') || '[]');
+    if (operational.length === 0) {
+        alert('Não há equipamentos registrados como operacionais no momento para gerar o relatório.');
+        return;
+    }
+
+    let rowsHtml = '';
+    operational.forEach((o, idx) => {
+        rowsHtml += `<tr><td>${idx + 1}</td><td><strong>${o.typeStr}</strong></td><td><strong>${o.tag}</strong></td><td>${o.location}</td><td>${o.supervisor}</td><td>${o.obs}</td></tr>`;
+    });
+
+    const now = new Date();
+    const currentDate = now.toLocaleDateString('pt-BR');
+    const currentTime = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+    const container = document.getElementById('print-report-container');
+    container.innerHTML = `
+        <div class="pdf-page">
+            <div class="pdf-header">
+                <h2>QUERÊNCIA OPERAÇÕES PORTUÁRIAS</h2>
+                <p>Relatório Consolidado de Máquinas em Condições de Operação</p>
+            </div>
+            <div class="pdf-grid-info">
+                <div><span>Data de Emissão:</span> <span>${currentDate} às ${currentTime}</span></div>
+                <div><span>Total Operacional:</span> <span style="color:#059669;">${operational.length} máquina(s)</span></div>
+            </div>
+            <div class="pdf-section-title">Relação de Máquinas Prontas para Operação</div>
+            <table class="pdf-table">
+                <thead><tr><th>#</th><th>TIPO</th><th>TAG</th><th>LOCAL</th><th>SUPERVISOR</th><th>RESSALVAS</th></tr></thead>
+                <tbody>${rowsHtml}</tbody>
+            </table>
+            <div class="pdf-signature"><div class="pdf-signature-line"></div><div class="pdf-signature-text">Supervisor de Operações / TST</div></div>
+        </div>
+    `;
+    setTimeout(() => { window.print(); }, 300);
+}
+
+function renderHistory() {
+    const container = document.getElementById('historyList');
+    if (!container) return;
+    const history = JSON.parse(localStorage.getItem('history') || '[]');
+    container.innerHTML = '';
+
+    if (history.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding: 20px;">Nenhum registro no histórico.</p>';
+        return;
+    }
+
+    const searchInput = document.getElementById('histSearch');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+   const filtered = history.filter(h => {
+        if (h.type === 'Machine') {
+            return h.equipmentModel.toLowerCase().includes(searchTerm) || h.equipmentTag.toLowerCase().includes(searchTerm) || h.operator.toLowerCase().includes(searchTerm) || h.shipName.toLowerCase().includes(searchTerm);
+        } else if (h.type === 'Operation') {
+            return h.ship.toLowerCase().includes(searchTerm) || h.supervisor.toLowerCase().includes(searchTerm);
+        } else if (h.type === 'ReleaseReport') {
+            return h.equipmentTag.toLowerCase().includes(searchTerm) || h.technician.toLowerCase().includes(searchTerm) || h.interventionType.toLowerCase().includes(searchTerm);
+        } else if (h.type === 'FuelRefuel') {
+            return h.equipmentTag.toLowerCase().includes(searchTerm) || h.electrician.toLowerCase().includes(searchTerm);
+        }
+        return false;
+    });
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding: 20px;">Nenhum registo encontrado com este filtro.</p>';
+        return;
+    }
+
+    filtered.forEach(h => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        
+        if (h.type === 'Machine') {
+            div.style.borderLeft = (h.status === 'BLOCKED') ? '6px solid #dc2626' : '6px solid #059669';
+            let info = `<strong>${h.equipmentModel} (${h.equipmentTag})</strong> - Operador: ${h.operator} (${h.shift})`;
+            div.innerHTML = `
+                <div class="history-header">
+                    <div>${info}<br><small style="color:var(--text-muted);">${h.date} - ${h.time}</small></div>
+                    <span class="badge ${h.status === 'BLOCKED' ? 'badge-critical' : 'badge-normal'}">${h.status || 'OK'}</span>
+                </div>
+                <div class="history-actions">
+                    <button class="btn btn-primary" onclick="printReportPDF('${h.id}')">🖨️ Gerar PDF</button>
+                    <a class="btn btn-email" href="${getEmailLink(h)}" target="_blank">✉️ E-mail</a>
+                    <button class="btn btn-danger" onclick="deleteHistoryItem('${h.id}')">Excluir</button>
+                </div>
+            `;
+        } else if (h.type === 'Operation') {
+            div.style.borderLeft = '6px solid #2563eb';
+            div.innerHTML = `
+                <div class="history-header">
+                    <div><strong>Operação Portuária: Navio ${h.ship}</strong> (Berço: ${h.berth})<br><small style="color:var(--text-muted);">Fiscal: ${h.supervisor} | ${h.date} - ${h.time}</small></div>
+                    <span class="badge badge-normal">Operação</span>
+                </div>
+                <div class="history-actions"><button class="btn btn-danger" onclick="deleteHistoryItem('${h.id}')">Excluir</button></div>
+            `;
+        } else if (h.type === 'ReleaseReport') {
+            div.style.borderLeft = '6px solid #059669';
+            div.innerHTML = `
+                <div class="history-header">
+                    <div><strong>📄 TERMO DE LIBERAÇÃO (${h.interventionType.toUpperCase()})</strong><br><strong>Equipamento:</strong> ${h.equipmentModel} (${h.equipmentTag})<br><small style="color:var(--text-muted);">Técnico: ${h.technician} | ${h.date} - ${h.time}</small></div>
+                    <span class="badge badge-operational">🟢 LIBERADO</span>
+                </div>
+                <div>
+                    <p style="margin-bottom: 8px;"><strong>Motivo Original:</strong> ${h.originalReason}</p>
+                    <p style="margin-bottom: 8px;"><strong>Serviço Executado:</strong> ${h.workDone}</p>
+                    <p style="margin-bottom: 16px; color: #1e3a8a; font-weight: bold;"><strong>Condição Final:</strong> ${h.restrictionObs}</p>
+                </div>
+                <div class="history-actions">
+                    <button class="btn btn-primary" onclick="printReleasePDF('${h.id}')">🖨️ Gerar PDF</button>
+                    <a class="btn btn-email" href="${getEmailLink(h)}" target="_blank">✉️ E-mail</a>
+                    <button class="btn btn-danger" onclick="deleteHistoryItem('${h.id}')">Excluir</button>
+                </div>
+            `;
+        } else if (h.type === 'FuelRefuel') {
+            div.style.borderLeft = '6px solid #059669';
+            div.innerHTML = `
+                <div class="history-header">
+                    <div><strong>⛽ ABASTECIMENTO DE COMBUSTÍVEL</strong><br><strong>Equipamento:</strong> ${h.equipmentModel} (${h.equipmentTag}) | <strong>Litros:</strong> ${h.litters} L<br><small style="color:var(--text-muted);">Eletricista: ${h.electrician} | Horímetro: ${h.meter} | ${h.date} - ${h.time}</small></div>
+                    <span class="badge badge-operational">TANQUE 100%</span>
+                </div>
+                <div>
+                    <p style="margin-bottom: 8px;"><strong>Observações:</strong> ${h.obs}</p>
+                    <div class="fuel-progress-container" style="max-width: 300px;"><div class="fuel-progress-bar" style="width: 100%;"></div></div>
+                </div>
+                <div class="history-actions">
+                    <button class="btn btn-primary" onclick="printFuelReportPDF()">🖨️ Gerar PDF</button>
+                    <button class="btn btn-danger" onclick="deleteHistoryItem('${h.id}')">Excluir</button>
+                </div>
+            `;
+        }
+        container.appendChild(div);
+    });
+}
+
+function getEmailLink(h) {
+    let subject = "", body = "";
+    if (h.type === 'Machine') {
+        subject = `[QUERÊNCIA] Relatório de Checklist - ${h.equipmentModel} (${h.equipmentTag})`;
+        body = `Prezados,\n\nSegue o relatório de inspeção da máquina ${h.equipmentTag}.\n\nAtenciosamente,\nOperações Portuárias - Querência`;
+    } else if (h.type === 'ReleaseReport') {
+        subject = `[QUERÊNCIA] Termo Oficial de Liberação (${h.interventionType}) - ${h.equipmentTag}`;
+        body = `Prezados,\n\nSegue o termo de liberação oficial do equipamento ${h.equipmentTag}.\n\nAtenciosamente,\nManutenção - Querência`;
+    }
+    return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function deleteHistoryItem(id) {
+    if (!confirm('Excluir este item do histórico?')) return;
+    let history = JSON.parse(localStorage.getItem('history') || '[]');
+    history = history.filter(h => h.id !== id);
+    localStorage.setItem('history', JSON.stringify(history));
+
+    let fuelRecords = JSON.parse(localStorage.getItem('fuel_records') || '[]');
+    fuelRecords = fuelRecords.filter(f => f.id !== id);
+    localStorage.setItem('fuel_records', JSON.stringify(fuelRecords));
+
+    updateDashboard();
+    renderHistory();
+    renderFuelTable();
+}
+
+function printReportPDF(id) {
+    const history = JSON.parse(localStorage.getItem('history') || '[]');
+    const h = history.find(item => item.id === id);
+    if (!h) return;
+
+    let itemsHtml = '';
+    if (h.details) {
+        h.details.forEach(d => {
+            const statusColor = d.status === 'OK' ? '#059669' : (d.status === 'NÃO OK' ? '#dc2626' : '#64748b');
+            itemsHtml += `<tr><td>${d.item}</td><td style="font-weight:700; color:${statusColor}; text-transform: uppercase;">${d.status}</td><td>${d.obs || '-'}</td></tr>`;
+        });
+    }
+
+    const container = document.getElementById('print-report-container');
+    container.innerHTML = `
+        <div class="pdf-page">
+            <div class="pdf-header"><h2>QUERÊNCIA OPERAÇÕES PORTUÁRIAS</h2><p>Relatório Técnico de Inspeção</p></div>
+            <div class="pdf-grid-info">
+                <div><span>Equipamento:</span> <span>${h.equipmentModel} (${h.equipmentTag})</span></div>
+                <div><span>Operador:</span> <span>${h.operator}</span></div>
+                <div><span>Data/Hora:</span> <span>${h.date} às ${h.time}</span></div>
+                <div><span>Status Geral:</span> <span>${h.status}</span></div>
+            </div>
+            <table class="pdf-table"><thead><tr><th>Item</th><th>Status</th><th>Obs</th></tr></thead><tbody>${itemsHtml}</tbody></table>
+            <div class="pdf-obs-box">${h.generalObs}</div>
+            <div class="pdf-signature"><div class="pdf-signature-line"></div><div class="pdf-signature-text">Operador / TST</div></div>
+        </div>
+    `;
+    setTimeout(() => { window.print(); }, 300);
+}
+
+function printReleasePDF(id) {
+    const history = JSON.parse(localStorage.getItem('history') || '[]');
+    const h = history.find(item => item.id === id);
+    if (!h) return;
+
+    const container = document.getElementById('print-report-container');
+    container.innerHTML = `
+        <div class="pdf-page">
+            <div class="pdf-header"><h2>QUERÊNCIA OPERAÇÕES PORTUÁRIAS</h2><p>Termo Oficial de Liberação</p></div>
+            <div class="pdf-grid-info">
+                <div><span>Equipamento:</span> <span>${h.equipmentModel} (${h.equipmentTag})</span></div>
+                <div><span>Técnico:</span> <span>${h.technician}</span></div>
+                <div><span>Data/Hora:</span> <span>${h.date} às ${h.time}</span></div>
+            </div>
+            <div class="pdf-obs-box"><b>Serviço Executado:</b> ${h.workDone}</div>
+            <div class="pdf-obs-box"><b>Condição Final:</b> ${h.restrictionObs}</div>
+            <div class="pdf-signature"><div class="pdf-signature-line"></div><div class="pdf-signature-text">Supervisor / Mecânico</div></div>
+        </div>
+    `;
+    setTimeout(() => { window.print(); }, 300);
+}
+
+function renderFleet() {
+    const tbody = document.getElementById('fleetTableBody');
+    if (!tbody) return;
+    const fleet = JSON.parse(localStorage.getItem('fleet') || '[]');
+    const maintenance = JSON.parse(localStorage.getItem('maintenance') || '[]');
+    
+    tbody.innerHTML = '';
+    if (fleet.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Nenhum equipamento cadastrado.</td></tr>';
+        return;
+    }
+
+    fleet.forEach(item => {
+        const maintItem = maintenance.find(m => m.tag === item.tag);
+        let statusBadge = '<span class="badge badge-operational">🟢 OPERACIONAL</span>';
+        let locStr = 'Pátio Operacional';
+
+        if (maintItem) {
+            locStr = maintItem.location;
+            statusBadge = maintItem.type === 'REVISION' ? '<span class="badge badge-revision">🟡 EM REVISÃO</span>' : '<span class="badge badge-maintenance">🔴 EM MANUTENÇÃO</span>';
+        }
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${item.type}</td>
+                <td><strong>${item.tag}</strong></td>
+                <td>${statusBadge}</td>
+                <td><strong>${locStr}</strong></td>
+                <td style="text-align: right;"><button class="btn btn-danger" style="width:auto; padding:6px 12px; font-size:0.85rem;" onclick="removeFleetItem('${item.id}')">Excluir</button></td>
+            </tr>
+        `;
+    });
+}
+
+function addFleetItem(e) {
+    e.preventDefault();
+    const type = document.getElementById('fleetType').value;
+    const tag = document.getElementById('fleetTag').value.trim();
+    if (!tag) return;
+
+    const fleet = JSON.parse(localStorage.getItem('fleet') || '[]');
+    if (fleet.some(f => f.tag.toLowerCase() === tag.toLowerCase())) {
+        alert('Já existe uma máquina cadastrada com esta TAG.');
+        return;
+    }
+
+    fleet.push({ id: 'fl_' + Date.now(), type: type, tag: tag, status: 'ACTIVE', location: 'Pátio Operacional' });
+    localStorage.setItem('fleet', JSON.stringify(fleet));
+
+    document.getElementById('fleetTag').value = '';
+    renderFleet();
+    populateModelSelectors();
+    updateFuelMachineSelector();
+    updateOperationalSelectors();
+    updateDashboard();
+    alert('Máquina cadastrada com sucesso!');
+}
+
+function removeFleetItem(id) {
+    let fleet = JSON.parse(localStorage.getItem('fleet') || '[]');
+    fleet = fleet.filter(item => item.id !== id);
+    localStorage.setItem('fleet', JSON.stringify(fleet));
+    renderFleet();
+    populateModelSelectors();
+    updateFuelMachineSelector();
+    updateOperationalSelectors();
+    updateDashboard();
+}
+</script>
+</body>
+</html>
